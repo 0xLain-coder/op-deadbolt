@@ -1,0 +1,3090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="FOM Daily Schedule v2.1 — dark study tracker for Class XI self-study.">
+<title>FOM Tracker · Daily Schedule v2.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0d12'/%3E%3Cpath d='M8 22V10h4.6c2.6 0 4.4 1.6 4.4 4s-1.8 4-4.4 4H11v4z' fill='%23f5b544'/%3E%3Ccircle cx='22' cy='20' r='2.4' fill='%234fd1c5'/%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   FOM TRACKER — design tokens
+   ============================================================ */
+:root{
+  --bg:#0a0d12;
+  --bg-soft:#0d1117;
+  --card:#151b24;
+  --card-2:#1a222d;
+  --card-3:#1e2734;
+  --border:#232c3a;
+  --border-soft:#1b232f;
+  --text:#e7eef7;
+  --muted:#8b98ab;
+  --faint:#5d6b7f;
+
+  --amber:#f5b544;
+  --teal:#4fd1c5;
+  --phys:#60a5fa;
+  --chem:#a78bfa;
+  --cseng:#fb7185;
+  --rev:#818cf8;
+  --hit:#34d399;
+  --yellow:#fbbf24;
+  --red:#f87171;
+  --slate:#7b8aa0;
+
+  --focus:#5b9cf8;
+  --radius:12px;
+  --radius-sm:9px;
+  --shadow:0 1px 2px rgba(0,0,0,.45), 0 10px 30px -16px rgba(0,0,0,.75);
+  --shadow-lg:0 24px 70px -24px rgba(0,0,0,.85);
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.2,.8,.3,1);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:var(--sans);font-size:14px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  font-feature-settings:'cv05' 1,'ss01' 1;
+}
+h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:-.01em}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+::selection{background:rgba(245,181,68,.28)}
+
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
+
+/* scrollbars */
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:#243040;border-radius:99px;border:3px solid var(--bg)}
+*::-webkit-scrollbar-thumb:hover{background:#31405a}
+
+/* ============================================================
+   Shell
+   ============================================================ */
+.shell{display:flex;min-height:100vh}
+.sidebar{
+  width:250px;flex:0 0 250px;background:var(--bg-soft);
+  border-right:1px solid var(--border);position:sticky;top:0;height:100vh;
+  display:flex;flex-direction:column;padding:18px 14px;overflow-y:auto;z-index:60;
+}
+.brand{display:flex;align-items:center;gap:11px;padding:4px 8px 18px}
+.brand-mark{
+  width:34px;height:34px;border-radius:10px;flex:none;
+  background:linear-gradient(145deg,#1d2532,#141a23);
+  border:1px solid #2b3547;display:grid;place-items:center;
+  font-family:var(--mono);font-weight:700;font-size:12px;color:var(--amber);
+  letter-spacing:.5px;
+}
+.brand-text strong{display:block;font-size:13.5px;letter-spacing:-.01em}
+.brand-text span{display:block;font-size:10.5px;color:var(--faint);letter-spacing:.05em;text-transform:uppercase}
+
+.nav-group{margin-top:14px}
+.nav-group-label{
+  font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#4b5768;
+  font-weight:700;padding:0 10px;margin-bottom:7px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);
+  color:var(--muted);text-decoration:none;font-weight:500;font-size:13.5px;
+  transition:background .18s var(--ease),color .18s var(--ease);
+  position:relative;
+}
+.nav-item + .nav-item{margin-top:2px}
+.nav-item:hover{background:var(--card);color:var(--text)}
+.nav-item.active{
+  background:linear-gradient(90deg,rgba(245,181,68,.14),rgba(245,181,68,.03));
+  color:#fff;
+}
+.nav-item.active::before{
+  content:'';position:absolute;left:-14px;top:50%;transform:translateY(-50%);
+  width:3px;height:20px;border-radius:0 3px 3px 0;background:var(--amber);
+}
+.nav-ico{width:17px;height:17px;flex:none;opacity:.85}
+.nav-item.active .nav-ico{opacity:1}
+.nav-badge{
+  margin-left:auto;font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:99px;
+  background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3);
+}
+
+.side-foot{margin-top:auto;padding:14px 10px 4px;border-top:1px solid var(--border-soft)}
+.side-foot .kv{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--faint);padding:3px 0}
+.side-foot .kv b{font-family:var(--mono);color:var(--muted);font-weight:500}
+.side-note{margin-top:10px;font-size:10.5px;color:#4b5768;line-height:1.5;font-style:italic}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{
+  position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;
+  padding:11px 24px;background:rgba(10,13,18,.86);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.topbar-title{display:flex;flex-direction:column;min-width:0}
+.topbar-title h1{font-size:15px}
+.topbar-title span{font-size:11.5px;color:var(--faint)}
+.topbar-spacer{flex:1}
+.hamburger{display:none;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:6px 8px;cursor:pointer;line-height:0}
+.scrim{display:none}
+
+.view{padding:26px 24px 64px;max-width:1248px;width:100%;margin:0 auto}
+.view:focus,.view:focus-visible{outline:none}
+
+/* ============================================================
+   Primitives
+   ============================================================ */
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.card-pad{padding:18px}
+.card-head{
+  display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--border-soft);
+}
+.card-head h2{font-size:13.5px;letter-spacing:-.01em}
+.card-head .sub{font-size:11.5px;color:var(--faint)}
+.card-head .spacer{flex:1}
+
+.grid{display:grid;gap:16px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.today-grid{display:grid;grid-template-columns:minmax(0,1fr) 322px;gap:16px;align-items:start}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:7px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);
+  background:var(--card-2);color:var(--text);font-size:12.5px;font-weight:500;cursor:pointer;
+  transition:background .16s var(--ease),border-color .16s var(--ease),transform .12s var(--ease),color .16s var(--ease);
+  text-decoration:none;white-space:nowrap;
+}
+.btn:hover{background:var(--card-3);border-color:#2f3a4c}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--amber);border-color:var(--amber);color:#12161d;font-weight:600}
+.btn.primary:hover{background:#ffc45f;border-color:#ffc45f}
+.btn.ghost{background:transparent}
+.btn.ghost:hover{background:var(--card-2)}
+.btn.danger{color:var(--red);border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.08)}
+.btn.danger:hover{background:rgba(248,113,113,.16)}
+.btn.sm{padding:4px 9px;font-size:11.5px}
+.btn.icon{padding:6px 8px}
+
+.input,.select,.textarea{
+  width:100%;background:#0e131b;border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:8px 10px;font-size:13px;color:var(--text);transition:border-color .16s var(--ease),background .16s var(--ease);
+}
+.input::placeholder,.textarea::placeholder{color:#4f5c6e}
+.input:focus,.select:focus,.textarea:focus{outline:none;border-color:#38506e;background:#10161f}
+.textarea{resize:vertical;min-height:74px;line-height:1.55}
+.select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b98ab' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:28px}
+.input.mono,.textarea.mono{font-family:var(--mono);font-size:12.5px}
+label.fl{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-bottom:6px}
+.field{margin-bottom:14px}
+
+.pill{
+  display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:99px;
+  font-size:11px;font-weight:600;letter-spacing:.01em;border:1px solid transparent;white-space:nowrap;
+}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+
+.tag{
+  display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:6px;
+  font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.02em;
+  background:var(--card-3);color:var(--muted);border:1px solid var(--border);
+}
+.tag.hit{background:rgba(52,211,153,.12);color:var(--hit);border-color:rgba(52,211,153,.3)}
+.tag.miss{background:rgba(248,113,113,.12);color:var(--red);border-color:rgba(248,113,113,.3)}
+.tag.active{background:rgba(245,181,68,.14);color:var(--amber);border-color:rgba(245,181,68,.35)}
+.tag.deload{background:rgba(129,140,248,.14);color:var(--rev);border-color:rgba(129,140,248,.35)}
+
+.kbd{
+  font-family:var(--mono);font-size:10.5px;padding:1px 5px;border-radius:5px;
+  background:#10161f;border:1px solid var(--border);color:var(--faint);
+}
+
+.mono{font-family:var(--mono)}
+.muted{color:var(--muted)}
+.faint{color:var(--faint)}
+.tiny{font-size:11.5px}
+.nowrap{white-space:nowrap}
+.center{text-align:center}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.hr{height:1px;background:var(--border-soft);margin:16px 0}
+
+/* ============================================================
+   Segmented control + switch
+   ============================================================ */
+.seg{display:inline-flex;background:#0d1219;border:1px solid var(--border);border-radius:10px;padding:3px;gap:2px}
+.seg label{position:relative;display:block}
+.seg input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.seg span{
+  display:flex;align-items:center;justify-content:center;min-width:32px;height:26px;padding:0 7px;
+  border-radius:7px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  transition:background .16s var(--ease),color .16s var(--ease);
+}
+.seg label:hover span{color:var(--text)}
+.seg input:checked + span{background:var(--seg-accent,var(--amber));color:#0d1117;font-weight:700}
+.seg input:focus-visible + span{outline:2px solid var(--focus);outline-offset:2px}
+
+.switch{display:inline-flex;align-items:center;gap:9px;cursor:pointer;user-select:none;position:relative}
+.switch input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer;z-index:2}
+.switch .track{
+  width:38px;height:22px;border-radius:99px;background:#1b2431;border:1px solid var(--border);
+  position:relative;flex:none;transition:background .2s var(--ease),border-color .2s var(--ease);
+}
+.switch .knob{
+  position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;
+  background:#5b6b80;transition:transform .2s var(--ease),background .2s var(--ease);
+}
+.switch input:checked + .track{background:rgba(52,211,153,.22);border-color:rgba(52,211,153,.5)}
+.switch input:checked + .track .knob{transform:translateX(16px);background:var(--hit)}
+.switch input:focus-visible + .track{outline:2px solid var(--focus);outline-offset:2px}
+.switch .sw-label{font-size:12.5px;color:var(--muted)}
+
+/* ============================================================
+   Stat cards
+   ============================================================ */
+.stat{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:15px 17px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+  display:flex;flex-direction:column;gap:7px;
+}
+.stat .top{display:flex;align-items:center;gap:7px}
+.stat .label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.stat .value{font-family:var(--mono);font-size:27px;font-weight:600;letter-spacing:-.03em;line-height:1.1}
+.stat .value small{font-size:13px;color:var(--faint);font-weight:500;letter-spacing:0}
+.stat .foot{font-size:11.5px;color:var(--muted)}
+.stat .accent{position:absolute;inset:0 auto 0 0;width:3px}
+.stat-icon{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;flex:none}
+
+.bar{height:6px;border-radius:99px;background:#101722;overflow:hidden}
+.bar > i{display:block;height:100%;border-radius:99px;background:var(--amber);transition:width .45s var(--ease)}
+.bar.teal > i{background:var(--teal)}
+.bar.hit > i{background:var(--hit)}
+.bar.red > i{background:var(--red)}
+
+/* ============================================================
+   Mode pills (top bar)
+   ============================================================ */
+.modes{display:inline-flex;background:#0d1219;border:1px solid var(--border);border-radius:10px;padding:3px;gap:2px}
+.modes button{
+  display:flex;align-items:center;gap:6px;border:0;background:transparent;color:var(--muted);
+  padding:4px 9px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;
+  transition:background .16s var(--ease),color .16s var(--ease);font-family:var(--sans);
+}
+.modes button:hover{color:var(--text);background:var(--card-2)}
+.modes button .md{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.modes button .mt{font-family:var(--mono);font-size:10px;color:var(--faint);font-weight:500}
+.modes button.on{background:var(--card-3);color:#fff;box-shadow:inset 0 0 0 1px #2d3a4d}
+.modes button.on .mt{color:var(--muted)}
+.modes button[data-mode="full"].on{color:var(--hit);box-shadow:inset 0 0 0 1px rgba(52,211,153,.4)}
+.modes button[data-mode="light"].on{color:var(--teal);box-shadow:inset 0 0 0 1px rgba(79,209,197,.4)}
+.modes button[data-mode="reduced"].on{color:var(--yellow);box-shadow:inset 0 0 0 1px rgba(251,191,36,.4)}
+.modes button[data-mode="minimum"].on{color:var(--red);box-shadow:inset 0 0 0 1px rgba(248,113,113,.4)}
+
+.clock{
+  font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.02em;
+  padding:4px 10px;border-radius:9px;background:#0d1219;border:1px solid var(--border);
+  min-width:86px;text-align:center;
+}
+.clock small{display:block;font-size:9.5px;color:var(--faint);font-weight:500;letter-spacing:.08em}
+.streak{
+  display:flex;align-items:center;gap:7px;padding:5px 10px;border-radius:9px;
+  background:#0d1219;border:1px solid var(--border);font-size:12px;
+}
+.streak b{font-family:var(--mono);font-size:14px;color:var(--amber)}
+
+/* ============================================================
+   Date navigator
+   ============================================================ */
+.datenav{display:inline-flex;align-items:center;gap:6px;background:#0d1219;border:1px solid var(--border);border-radius:10px;padding:3px}
+.datenav button{background:transparent;border:0;color:var(--muted);cursor:pointer;padding:4px 7px;border-radius:7px;line-height:0;transition:background .15s,color .15s}
+.datenav button:hover{background:var(--card-2);color:var(--text)}
+.datenav input[type=date]{background:transparent;border:0;color:var(--text);font-size:12.5px;font-family:var(--mono);padding:3px 4px;width:132px}
+.datenav input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.55);cursor:pointer}
+
+/* ============================================================
+   Now & Next
+   ============================================================ */
+.nowwrap{position:relative;overflow:hidden}
+.nowwrap::after{
+  content:'';position:absolute;inset:0;pointer-events:none;border-radius:var(--radius);
+  background:radial-gradient(120% 100% at 100% 0%,rgba(245,181,68,.07),transparent 55%);
+}
+.nowhead{display:flex;align-items:flex-start;gap:16px;padding:20px 22px 18px}
+.nowhead .nm{min-width:0}
+.nowhead .nm h2{font-size:20px;letter-spacing:-.02em;margin-bottom:3px}
+.nowhead .nm p{font-size:12.5px;color:var(--muted)}
+.nowhead .rt{margin-left:auto;text-align:right;flex:none}
+.nowhead .rt .big{font-family:var(--mono);font-size:30px;font-weight:600;letter-spacing:-.03em;line-height:1}
+.nowhead .rt .cap{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:700;margin-top:5px}
+.nowbody{padding:0 22px 20px}
+.nowbar{height:8px;border-radius:99px;background:#0e131b;overflow:hidden;border:1px solid var(--border-soft)}
+.nowbar > i{display:block;height:100%;background:var(--now-c,var(--amber));border-radius:99px;transition:width .6s var(--ease),background .25s var(--ease);box-shadow:0 0 12px -2px var(--now-c,var(--amber))}
+.nowmeta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-size:12px;color:var(--muted)}
+.nowmeta b{font-family:var(--mono);color:var(--text);font-weight:600}
+.nextrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.nextcard{border:1px solid var(--border);border-radius:10px;padding:12px 13px;background:#121821;display:flex;gap:12px;align-items:flex-start}
+.nextcard .n{font-family:var(--mono);font-size:12px;color:var(--faint);flex:none;padding-top:1px}
+.nextcard h4{font-size:13.5px;margin-bottom:2px}
+.nextcard p{font-size:11.5px;color:var(--muted)}
+.nextcard .rail{width:3px;border-radius:99px;align-self:stretch;flex:none}
+
+/* ============================================================
+   Timeline
+   ============================================================ */
+.tl{border-top:1px solid var(--border-soft)}
+.tl-row{display:grid;grid-template-columns:86px minmax(0,1fr);transition:background .18s var(--ease)}
+.tl-row:hover{background:#141b25}
+.tl-row.is-active{background:linear-gradient(90deg,rgba(245,181,68,.09),transparent 70%)}
+.tl-row.is-skipped{opacity:.45}
+.tl-row.is-skipped .tl-name{text-decoration:line-through;text-decoration-color:#4b5768}
+.tl-time{
+  padding:12px 12px 12px 16px;font-family:var(--mono);font-size:11.5px;color:var(--faint);
+  border-top:1px solid var(--border-soft);white-space:nowrap;
+}
+.tl-time b{display:block;color:var(--muted);font-weight:600;font-size:12px}
+.tl-time span{font-size:10px;letter-spacing:.04em}
+.tl-body{border-left:3px solid var(--cat,#2a3444);padding:11px 16px 11px 14px;border-top:1px solid var(--border-soft);min-width:0}
+.tl-main{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tl-name{font-size:13.5px;font-weight:600;letter-spacing:-.01em}
+.tl-type{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:#4b5768;font-weight:700;white-space:nowrap}
+.tl-sub{font-size:11.5px;color:var(--faint)}
+.tl-meta{margin-left:auto;display:flex;align-items:center;gap:8px}
+.tl-dur{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.tl-expand{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);display:grid;gap:9px}
+.tl-expand .row{display:grid;grid-template-columns:92px minmax(0,1fr);align-items:start;gap:10px}
+.tl-expand .row > .k{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);font-weight:700;padding-top:8px}
+.hm{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.hm button{
+  border:0;background:transparent;color:var(--muted);font-size:11px;font-weight:700;
+  padding:4px 9px;cursor:pointer;white-space:nowrap;transition:background .16s var(--ease),color .16s var(--ease);font-family:var(--sans);
+}
+.hm button + button{border-left:1px solid var(--border)}
+.hm button:hover{background:var(--card-3);color:var(--text)}
+.hm button.on[data-v="hit"]{background:rgba(52,211,153,.16);color:var(--hit)}
+.hm button.on[data-v="miss"]{background:rgba(248,113,113,.16);color:var(--red)}
+.hm button.on[data-v="none"]{background:var(--card-3);color:var(--text)}
+
+/* ============================================================
+   Side widgets
+   ============================================================ */
+.widget{padding:15px 16px}
+.widget h3{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.widget h3 .live{width:6px;height:6px;border-radius:50%;background:var(--hit);box-shadow:0 0 0 3px rgba(52,211,153,.15)}
+.kvline{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0;font-size:12.5px}
+.kvline + .kvline{border-top:1px solid var(--border-soft)}
+.kvline .k{color:var(--muted)}
+.kvline .v{font-family:var(--mono);font-weight:600}
+.check-note{font-size:11.5px;margin-top:9px;padding:7px 9px;border-radius:8px;line-height:1.45}
+.check-note.ok{background:rgba(52,211,153,.09);color:#6ee7b7;border:1px solid rgba(52,211,153,.22)}
+.check-note.warn{background:rgba(251,191,36,.09);color:#fcd34d;border:1px solid rgba(251,191,36,.22)}
+.check-note.bad{background:rgba(248,113,113,.09);color:#fca5a5;border:1px solid rgba(248,113,113,.22)}
+
+.sleep-in{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.sleep-in .input{font-family:var(--mono);font-size:12px}
+
+/* ============================================================
+   Tables
+   ============================================================ */
+.tbl-wrap{overflow-x:auto}
+table.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+table.tbl th{
+  text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
+  font-weight:700;padding:9px 12px;border-bottom:1px solid var(--border);white-space:nowrap;background:#121821;
+  position:sticky;top:0;
+}
+table.tbl td{padding:8px 12px;border-bottom:1px solid var(--border-soft);vertical-align:middle}
+table.tbl tbody tr{transition:background .14s var(--ease)}
+table.tbl tbody tr:hover{background:#141b25}
+table.tbl tr:last-child td{border-bottom:0}
+table.tbl .num{font-family:var(--mono);text-align:right}
+table.tbl input.cell{
+  background:transparent;border:1px solid transparent;border-radius:7px;padding:3px 6px;width:62px;
+  font-family:var(--mono);font-size:12px;color:var(--text);transition:all .15s var(--ease);
+}
+table.tbl input.cell:hover{border-color:var(--border);background:#0e131b}
+table.tbl input.cell:focus{outline:none;border-color:#38506e;background:#0e131b}
+
+.card-row{
+  border-bottom:1px solid var(--border-soft);padding:14px 18px;
+  display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,1fr) 176px;gap:14px;align-items:start;
+}
+.card-row:last-child{border-bottom:0}
+.card-row .rk{
+  display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;font-weight:700;
+  padding-top:7px;
+}
+.card-row .rk i{width:3px;height:17px;border-radius:99px;background:var(--cat);flex:none}
+.card-row .rname{font-family:var(--mono);font-size:10.5px;color:var(--faint);font-weight:400;display:block;margin-top:2px}
+.card-row .fixed{font-size:10px;color:var(--faint);margin-top:5px;display:flex;align-items:center;gap:4px}
+
+/* ============================================================
+   Dot strip
+   ============================================================ */
+.strip{display:flex;gap:8px;flex-wrap:wrap}
+.strip-day{
+  flex:1 1 0;min-width:88px;border:1px solid var(--border);border-radius:10px;padding:9px 10px;background:#121821;
+  display:flex;flex-direction:column;gap:7px;
+}
+.strip-day .sd-h{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+.strip-day .sd-d{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.strip-day .sd-w{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.strip-dots{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}
+.sd-dot{height:16px;border-radius:3px;background:#1b2431;border:1px solid #202a38;transition:transform .15s var(--ease)}
+.sd-dot.hit{background:rgba(52,211,153,.85);border-color:rgba(52,211,153,.9)}
+.sd-dot.miss{background:rgba(248,113,113,.8);border-color:rgba(248,113,113,.85)}
+.sd-dot.none{background:#1b2431}
+.strip-day .sd-f{font-size:10.5px;color:var(--faint);font-family:var(--mono)}
+
+/* ============================================================
+   Modal
+   ============================================================ */
+.modal-back{
+  position:fixed;inset:0;background:rgba(4,6,9,.76);backdrop-filter:blur(4px);z-index:200;
+  display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .16s var(--ease);
+}
+.modal{
+  width:min(700px,100%);max-height:90vh;overflow:auto;background:var(--card);
+  border:1px solid #2a3444;border-radius:14px;box-shadow:var(--shadow-lg);
+  animation:popIn .2s var(--ease);
+}
+.modal-h{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--border-soft);position:sticky;top:0;background:var(--card);z-index:2}
+.modal-h h3{font-size:14px}
+.modal-h .spacer{flex:1}
+.modal-b{padding:18px}
+.modal-f{display:flex;gap:9px;justify-content:flex-end;padding:14px 18px;border-top:1px solid var(--border-soft);position:sticky;bottom:0;background:var(--card)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.view > *{animation:rise .22s var(--ease) both}
+
+/* ============================================================
+   Tabs
+   ============================================================ */
+.tabs{display:inline-flex;background:#0d1219;border:1px solid var(--border);border-radius:10px;padding:3px;gap:2px}
+.tabs button{
+  border:0;background:transparent;color:var(--muted);padding:6px 13px;border-radius:7px;font-size:12.5px;
+  font-weight:500;cursor:pointer;transition:background .16s var(--ease),color .16s var(--ease);
+}
+.tabs button:hover{color:var(--text)}
+.tabs button.on{background:var(--card-3);color:#fff}
+
+/* ============================================================
+   Charts
+   ============================================================ */
+.chart-wrap{position:relative}
+.chart-wrap svg{display:block;width:100%;height:auto;overflow:visible}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.legend .li{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted)}
+.legend .sw{width:10px;height:10px;border-radius:3px;flex:none}
+.legend .sw.line{height:3px;border-radius:99px;width:14px}
+.axis-lbl{font-family:var(--mono);font-size:9.5px;fill:#5d6b7f}
+.grid-l{stroke:#1e2734;stroke-width:1}
+
+/* ============================================================
+   Modules
+   ============================================================ */
+.mod-group{margin-bottom:22px}
+.mod-group-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.mod-group-h h3{font-size:12.5px}
+.mod-group-h .spacer{flex:1}
+.mod{
+  border:1px solid var(--border);border-radius:var(--radius);background:var(--card);
+  padding:13px 15px;margin-bottom:9px;box-shadow:var(--shadow);transition:border-color .18s var(--ease);
+}
+.mod.current{border-color:rgba(245,181,68,.45);box-shadow:0 0 0 1px rgba(245,181,68,.12),var(--shadow)}
+.mod-h{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+.mod-code{
+  font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--amber);
+  background:rgba(245,181,68,.11);border:1px solid rgba(245,181,68,.25);padding:2px 7px;border-radius:6px;
+}
+.mod-title{font-size:13.5px;font-weight:600}
+.mod-win{font-family:var(--mono);font-size:11px;color:var(--faint);margin-left:auto}
+.mod-checks{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.chk{
+  display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:8px;cursor:pointer;
+  background:#111720;border:1px solid var(--border);font-size:11.5px;color:var(--muted);
+  transition:all .16s var(--ease);user-select:none;
+}
+.chk:hover{border-color:#33415a;color:var(--text)}
+.chk input{position:absolute;opacity:0;width:1px;height:1px}
+.chk .box{
+  width:13px;height:13px;border-radius:4px;border:1.5px solid #3a4760;flex:none;position:relative;
+  transition:all .16s var(--ease);
+}
+.chk .box::after{
+  content:'';position:absolute;left:3.5px;top:.5px;width:4px;height:8px;
+  border:solid #0d1117;border-width:0 2px 2px 0;transform:rotate(42deg) scale(.4);opacity:0;
+  transition:all .16s var(--ease);
+}
+.chk input:checked + .box{background:var(--hit);border-color:var(--hit)}
+.chk input:checked + .box::after{opacity:1;transform:rotate(42deg) scale(1)}
+.chk input:checked ~ .cl{color:var(--text)}
+.chk input:focus-visible + .box{outline:2px solid var(--focus);outline-offset:2px}
+.chk .m{margin-left:3px;font-family:var(--mono);font-size:10px;color:var(--faint)}
+.mod.done{border-color:rgba(52,211,153,.35)}
+.mod.done .mod-code{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.3);color:var(--hit)}
+
+/* ============================================================
+   Misc components
+   ============================================================ */
+.note{border:1px solid var(--border);border-left:3px solid var(--rev);border-radius:10px;padding:12px 14px;background:#121821}
+.note.amber{border-left-color:var(--amber)}
+.note.red{border-left-color:var(--red)}
+.note.teal{border-left-color:var(--teal)}
+.note h4{font-size:12.5px;margin-bottom:5px}
+.note p{font-size:12px;color:var(--muted);line-height:1.55}
+.note ul{margin:6px 0 0;padding-left:16px;font-size:12px;color:var(--muted);line-height:1.6}
+
+.banner{
+  display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;
+  background:linear-gradient(90deg,rgba(129,140,248,.13),rgba(129,140,248,.03));
+  border:1px solid rgba(129,140,248,.28);margin-bottom:16px;
+}
+.banner .bi{width:30px;height:30px;border-radius:9px;background:rgba(129,140,248,.16);display:grid;place-items:center;flex:none}
+.banner.mode-light{background:linear-gradient(90deg,rgba(79,209,197,.13),rgba(79,209,197,.03));border-color:rgba(79,209,197,.28)}
+.banner.mode-reduced{background:linear-gradient(90deg,rgba(251,191,36,.13),rgba(251,191,36,.03));border-color:rgba(251,191,36,.28)}
+.banner.mode-minimum{background:linear-gradient(90deg,rgba(248,113,113,.13),rgba(248,113,113,.03));border-color:rgba(248,113,113,.28)}
+.banner b{font-size:12.5px}
+.banner p{font-size:11.5px;color:var(--muted)}
+
+.zone{border-radius:10px;padding:14px 16px;border:1px solid var(--border);background:#121821}
+.zone .zv{font-family:var(--mono);font-size:28px;font-weight:600;letter-spacing:-.03em}
+.zone.green{border-color:rgba(52,211,153,.35);background:linear-gradient(135deg,rgba(52,211,153,.09),rgba(52,211,153,.02))}
+.zone.green .zv{color:var(--hit)}
+.zone.yellow{border-color:rgba(251,191,36,.35);background:linear-gradient(135deg,rgba(251,191,36,.09),rgba(251,191,36,.02))}
+.zone.yellow .zv{color:var(--yellow)}
+.zone.red{border-color:rgba(248,113,113,.35);background:linear-gradient(135deg,rgba(248,113,113,.09),rgba(248,113,113,.02))}
+.zone.red .zv{color:var(--red)}
+
+.empty{padding:38px 20px;text-align:center;color:var(--faint);font-size:12.5px}
+.empty .e-ico{font-size:26px;margin-bottom:8px;opacity:.5}
+
+.kbdhint{font-size:11px;color:var(--faint);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width:1180px){
+  .today-grid{grid-template-columns:minmax(0,1fr)}
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:920px){
+  .sidebar{
+    position:fixed;left:0;top:0;bottom:0;transform:translateX(-102%);
+    transition:transform .24s var(--ease);box-shadow:var(--shadow-lg);
+  }
+  .sidebar.open{transform:none}
+  .scrim{display:block;position:fixed;inset:0;background:rgba(4,6,9,.6);z-index:55;opacity:0;pointer-events:none;transition:opacity .24s var(--ease)}
+  .scrim.show{opacity:1;pointer-events:auto}
+  .hamburger{display:inline-flex}
+  .g3,.g2{grid-template-columns:minmax(0,1fr)}
+  .view{padding:18px 14px 56px}
+  .topbar{padding:10px 14px;gap:10px;flex-wrap:wrap}
+  .card-row{grid-template-columns:minmax(0,1fr);gap:9px}
+  .card-row .rk{padding-top:0}
+  .nextrow{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .g4{grid-template-columns:minmax(0,1fr)}
+  .nowhead{flex-wrap:wrap}
+  .nowhead .rt{margin-left:0;text-align:left;width:100%}
+  .tl-row{grid-template-columns:66px minmax(0,1fr)}
+  .tl-time{padding-left:12px;font-size:10.5px}
+  .modes button .mt{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
+    <div class="brand">
+      <div class="brand-mark">FOM</div>
+      <div class="brand-text">
+        <strong>Study Tracker</strong>
+        <span>Schedule v2.1</span>
+      </div>
+    </div>
+
+    <nav id="nav" aria-label="Pages"></nav>
+
+    <div class="side-foot">
+      <div class="kv"><span>Plan start</span><b id="footStart">—</b></div>
+      <div class="kv"><span>Week</span><b id="footWeek">—</b></div>
+      <div class="kv"><span>Data points</span><b id="footPoints">—</b></div>
+      <div class="side-note">“Revision closes the day. Sleep seals it.”</div>
+    </div>
+  </aside>
+
+  <div class="scrim" id="scrim"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="hamburger" id="hamb" aria-label="Open navigation">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+
+      <div class="topbar-title">
+        <h1 id="pgTitle">Today</h1>
+        <span id="pgSub">—</span>
+      </div>
+
+      <div class="topbar-spacer"></div>
+
+      <div class="modes" id="modes" role="group" aria-label="Day mode">
+        <button type="button" data-mode="full" title="Complete plan — 10 h 40 m of study"><i class="md"></i>Full<span class="mt">640</span></button>
+        <button type="button" data-mode="light" title="Trimmed load — 9 h 20 m of study"><i class="md"></i>Light<span class="mt">560</span></button>
+        <button type="button" data-mode="reduced" title="Half load — 5 h 20 m of study"><i class="md"></i>Reduced<span class="mt">320</span></button>
+        <button type="button" data-mode="minimum" title="Recovery day — 45 min of study"><i class="md"></i>Minimum<span class="mt">45</span></button>
+      </div>
+
+      <div class="streak" title="Consecutive Green days with sleep of 7 h or more">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#f5b544"><path d="M12 2s4 4.5 4 9a4 4 0 0 1-8 0c0-1.2.5-2.4 1-3.4"/></svg>
+        <span class="faint tiny">Streak</span><b id="streakVal">0</b>
+      </div>
+
+      <div class="clock" id="clock" aria-live="off">--:--<small>--</small></div>
+    </header>
+
+    <main class="view" id="view" tabindex="-1"></main>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   FOM TRACKER — data layer
+   Single source of truth: FOM Daily Schedule v2.1 (Self-Study Edition)
+   ============================================================ */
+
+const STORE_KEY = 'fom-tracker-v1';
+const SCHEMA_VERSION = 1;
+const DEFAULT_START = '2026-11-09';
+
+/* ---------- category palette ---------- */
+const CAT = {
+  fom:    { label:'FOM',            color:'#f5b544' },
+  phy:    { label:'Physics',        color:'#60a5fa' },
+  chem:   { label:'Chemistry',      color:'#a78bfa' },
+  cseng:  { label:'CS + English',   color:'#fb7185' },
+  rev:    { label:'Revision',       color:'#818cf8' },
+  rec:    { label:'Recovery',       color:'#4fd1c5' },
+  free:   { label:'Free zone',      color:'#7b8aa0' },
+  plan:   { label:'Planning',       color:'#a5b4fc' }
+};
+const CATKEY = { fom:'fom', phy:'phy', chem:'chem', cseng:'cseng', rev:'rev', rec:'rec', free:'free', plan:'plan' };
+
+/* ---------- master timelines (from sections 6, 7, 8) ---------- */
+const TL = {
+  weekday: [
+    { s:'07:00', m:30,  n:'Wake-up + slow morning', c:'rec',  ty:'RECOVERY', d:'Water, mobility, plan the day' },
+    { s:'07:30', m:90,  n:'FOM-1 · Learn',           c:'fom',  ty:'DEEP',     d:'Hardest new thinking, fresh brain', k:'fom1', code:'FOM-1', st:1 },
+    { s:'09:00', m:15,  n:'Break 1',                 c:'rec',  ty:'RECOVERY', d:'Outside, water, look far away' },
+    { s:'09:15', m:90,  n:'FOM-2 · Practice',         c:'fom',  ty:'DEEP',     d:'Apply it; mark every problem C / H / X', k:'fom2', code:'FOM-2', st:1 },
+    { s:'10:45', m:20,  n:'Breakfast',               c:'rec',  ty:'FUEL',     d:'A proper meal, no bath' },
+    { s:'11:05', m:80,  n:'Physics',                 c:'phy',  ty:'STUDY',    d:'One deep block; the day’s rotation', k:'phy', code:'PHY', st:1 },
+    { s:'12:25', m:30,  n:'Break 2 + mini-nap',      c:'rec',  ty:'RECOVERY', d:'10–15 min mini-nap, then air' },
+    { s:'12:55', m:80,  n:'Chemistry',               c:'chem', ty:'STUDY',    d:'One deep block; P / O / I', k:'che', code:'CHE', st:1 },
+    { s:'14:15', m:30,  n:'Lunch',                   c:'rec',  ty:'FUEL',     d:'Moderate — fuel, not a coma' },
+    { s:'14:45', m:30,  n:'Nap 1',                   c:'rec',  ty:'RECOVERY', d:'Alarm on, dim room, up on the alarm' },
+    { s:'15:15', m:10,  n:'Reset',                   c:'rec',  ty:'RECOVERY', d:'Water, light, standing stretches' },
+    { s:'15:25', m:80,  n:'Computer + English',     c:'cseng',ty:'STUDY',    d:'CS 40 + ENG 40', k:'ce', code:'C+E', st:1 },
+    { s:'16:45', m:15,  n:'Break 3',                 c:'rec',  ty:'RECOVERY', d:'Break only — no snack', code:'BRK3' },
+    { s:'17:00', m:10,  n:'Rest 2',                  c:'rec',  ty:'RECOVERY', d:'Eyes-closed rest — never a nap' },
+    { s:'17:10', m:35,  n:'Workout',                 c:'rec',  ty:'MOVE',     d:'The hinge of the day' },
+    { s:'17:45', m:20,  n:'Bath + light fuel',       c:'rec',  ty:'FUEL',     d:'Bath, then fruit / curd / nuts' },
+    { s:'18:05', m:90,  n:'FOM-3 · Prove & Lock',    c:'fom',  ty:'DEEP',     d:'Evening peak: proofs and Tier 3', k:'fom3', code:'FOM-3', st:1 },
+    { s:'19:35', m:10,  n:'Break 4',                 c:'rec',  ty:'RECOVERY', d:'Decompress, no screens' },
+    { s:'19:45', m:60,  n:'FOM-4 · Analysis',        c:'fom',  ty:'DEEP-LITE',d:'Review → find every mistake → correct', k:'fom4', code:'FOM-4', st:1 },
+    { s:'20:45', m:10,  n:'Shutdown ritual',         c:'rec',  ty:'RECOVERY', d:'Tomorrow’s card, log, worry dump' },
+    { s:'20:55', m:40,  n:'Free evening',            c:'free', ty:'FREE',     d:'No study — family, hobby, music', code:'FREE' },
+    { s:'21:35', m:20,  n:'Evening reading',         c:'rec',  ty:'RECOVERY', d:'Paper book, English preferred' },
+    { s:'21:55', m:35,  n:'Dinner',                  c:'rec',  ty:'FUEL',     d:'Fixed family window' },
+    { s:'22:30', m:70,  n:'Revision — last block',   c:'rev',  ty:'STUDY',    d:'REV-M maths 40 + REV-A all subjects 30', k:'rev', code:'REV', st:1 },
+    { s:'23:40', m:5,   n:'Night routine',           c:'rec',  ty:'RECOVERY', d:'Brush, dim lights, phone out' },
+    { s:'23:45', m:435, n:'Sleep',                   c:'rec',  ty:'RECOVERY', d:'Fixed block — 7 h 15 m', k:'sleep', code:'SLEEP' }
+  ],
+  saturday: [
+    { s:'07:30', m:30,  n:'Wake-up + slow morning', c:'rec',  ty:'RECOVERY', d:'Slower start, 8-minute mobility' },
+    { s:'08:00', m:90,  n:'Milestone attempt',      c:'fom',  ty:'DEEP',     d:'Unaided, from a blank page', k:'fom1', code:'S1', st:1 },
+    { s:'09:30', m:15,  n:'Break',                  c:'rec',  ty:'RECOVERY', d:'Move, water' },
+    { s:'09:45', m:90,  n:'Weekly timed set',       c:'fom',  ty:'DEEP',     d:'Exam-style problems, real conditions', k:'fom2', code:'S2', st:1 },
+    { s:'11:15', m:20,  n:'Breakfast',              c:'rec',  ty:'FUEL',     d:'No bath — bath after the Free Zone' },
+    { s:'11:35', m:60,  n:'PCM weekly check',       c:'phy',  ty:'STUDY',    d:'Physics 30 + Chemistry 30, closed book', k:'phy', code:'PCM', st:1 },
+    { s:'12:35', m:15,  n:'Break',                  c:'rec',  ty:'RECOVERY', d:'Outdoors' },
+    { s:'12:50', m:45,  n:'Code & write',           c:'cseng',ty:'STUDY',    d:'CS 25 + English 20', k:'ce', code:'C+E', st:1 },
+    { s:'13:35', m:30,  n:'Lunch',                  c:'rec',  ty:'FUEL',     d:'With family if possible' },
+    { s:'14:05', m:30,  n:'Nap 1',                  c:'rec',  ty:'RECOVERY', d:'Thirty minutes, as on weekdays' },
+    { s:'14:35', m:10,  n:'Reset',                  c:'rec',  ty:'RECOVERY', d:'Water, light' },
+    { s:'14:45', m:420, n:'FREE ZONE',              c:'free', ty:'FREE',     d:'Seven hours — sport, outdoors, friends. No study' },
+    { s:'21:45', m:10,  n:'Shutdown ritual',        c:'rec',  ty:'RECOVERY', d:'Daily log; jot Sunday’s seeds' },
+    { s:'21:55', m:35,  n:'Dinner',                 c:'rec',  ty:'FUEL',     d:'Fixed window, with family' },
+    { s:'22:30', m:25,  n:'Closing revision',       c:'rev',  ty:'STUDY',    d:'Maths 10 · Physics 5 · Chemistry 5 · CS 2 · Eng 3', k:'rev', code:'REV-W', st:1 },
+    { s:'22:55', m:15,  n:'Free evening',           c:'free', ty:'FREE',     d:'No study' },
+    { s:'23:10', m:30,  n:'Evening reading',        c:'rec',  ty:'RECOVERY', d:'Paper book' },
+    { s:'23:40', m:5,   n:'Night routine',          c:'rec',  ty:'RECOVERY', d:'Brush, dim lights' },
+    { s:'23:45', m:465, n:'Sleep',                  c:'rec',  ty:'RECOVERY', d:'7 h 45 m', k:'sleep', code:'SLEEP' }
+  ],
+  sunday: [
+    { s:'07:30', m:30,  n:'Wake-up + slow morning', c:'rec',  ty:'RECOVERY', d:'Slow start' },
+    { s:'08:00', m:75,  n:'Analysis & rewrite',     c:'fom',  ty:'DEEP-LITE',d:'Learn from Saturday’s set; two model solutions', k:'fom3', code:'S3', st:1 },
+    { s:'09:15', m:15,  n:'Break',                  c:'rec',  ty:'RECOVERY', d:'Move, water' },
+    { s:'09:30', m:45,  n:'Recall without notes',   c:'fom',  ty:'MEDIUM',   d:'The week’s key results from a blank page', k:'fom4', code:'S4', st:1 },
+    { s:'10:15', m:20,  n:'Breakfast',              c:'rec',  ty:'FUEL',     d:'No bath — it comes after the Free Zone' },
+    { s:'10:35', m:30,  n:'Calm literacy',          c:'cseng',ty:'LIGHT',    d:'English for pleasure or a light CS review', k:'ce', code:'C+E', st:1 },
+    { s:'11:05', m:145, n:'FREE ZONE A',            c:'free', ty:'FREE',     d:'Long walk or cycle, sport, family — no study' },
+    { s:'13:30', m:30,  n:'Lunch',                  c:'rec',  ty:'FUEL',     d:'With family' },
+    { s:'14:00', m:30,  n:'Nap 1',                  c:'rec',  ty:'RECOVERY', d:'Thirty minutes' },
+    { s:'14:30', m:10,  n:'Reset',                  c:'rec',  ty:'RECOVERY', d:'—' },
+    { s:'14:40', m:245, n:'FREE ZONE B',            c:'free', ty:'FREE',     d:'Anything that isn’t study' },
+    { s:'18:45', m:45,  n:'Weekly Review & planning', c:'plan', ty:'PLANNING', d:'Dashboard 5 · review 15 · plan 10 · helper sync 15', code:'WR', st:1 },
+    { s:'19:30', m:15,  n:'Shutdown + Monday prep', c:'rec',  ty:'RECOVERY', d:'Monday’s card, bag, alarms, clothes' },
+    { s:'19:45', m:130, n:'Family evening',         c:'free', ty:'FREE',     d:'Film, games, people. No study' },
+    { s:'21:55', m:35,  n:'Dinner',                 c:'rec',  ty:'FUEL',     d:'Fixed window, with family' },
+    { s:'22:30', m:20,  n:'Closing revision',       c:'rev',  ty:'STUDY',    d:'The week’s weak spots', k:'rev', code:'REV-W', st:1 },
+    { s:'22:50', m:20,  n:'Free / wind-down',       c:'free', ty:'FREE',     d:'No study, no screens' },
+    { s:'23:10', m:30,  n:'Evening reading',        c:'rec',  ty:'RECOVERY', d:'Paper book' },
+    { s:'23:40', m:5,   n:'Night routine',          c:'rec',  ty:'RECOVERY', d:'—' },
+    { s:'23:45', m:435, n:'Sleep',                  c:'rec',  ty:'RECOVERY', d:'7 h 15 m — an even start to Monday', k:'sleep', code:'SLEEP' }
+  ]
+};
+
+
+/* ---------- Reduced load day — weekday template (22.3) ---------- */
+TL.weekdayReduced = [
+  { s:'07:00', m:30,  n:'Wake-up + slow morning', c:'rec',  ty:'RECOVERY', d:'As usual. Do the 60-second check and choose Reduced' },
+  { s:'07:30', m:60,  n:'FOM-1 · Learn (short)',   c:'fom',  ty:'DEEP',     d:'Reading plus one reconstruction — skip the second', k:'fom1', code:'FOM-1', st:1 },
+  { s:'08:30', m:15,  n:'Break 1',                 c:'rec',  ty:'RECOVERY', d:'Step outside' },
+  { s:'08:45', m:60,  n:'FOM-2 · Practice (short)',c:'fom',  ty:'DEEP',     d:'Tier 1–2 only. No Tier 3 today', k:'fom2', code:'FOM-2', st:1 },
+  { s:'09:45', m:20,  n:'Breakfast',               c:'rec',  ty:'FUEL',     d:'Unhurried' },
+  { s:'10:05', m:50,  n:'Physics (short)',         c:'phy',  ty:'STUDY',    d:'Part A plus three problems', k:'phy', code:'PHY', st:1 },
+  { s:'10:55', m:15,  n:'Break',                   c:'rec',  ty:'RECOVERY', d:'Outdoors' },
+  { s:'11:10', m:50,  n:'Chemistry (short)',       c:'chem', ty:'STUDY',    d:'Part A plus three problems, or flashcards', k:'che', code:'CHE', st:1 },
+  { s:'12:00', m:80,  n:'Recovery menu',           c:'rec',  ty:'RECOVERY', d:'Pick two: sunlight walk 20 · music or a hobby 30 · stretching 15 · a chat with family' },
+  { s:'13:20', m:30,  n:'Lunch',                   c:'rec',  ty:'FUEL',     d:'Moderate' },
+  { s:'13:50', m:30,  n:'Nap 1',                   c:'rec',  ty:'RECOVERY', d:'As usual' },
+  { s:'14:20', m:10,  n:'Reset',                   c:'rec',  ty:'RECOVERY', d:'—' },
+  { s:'14:30', m:30,  n:'C+E · One item only',     c:'cseng',ty:'STUDY',    d:'English reading for pleasure or a 25-minute CS review', k:'ce', code:'C+E', st:1 },
+  { s:'15:00', m:255, n:'Free time + movement',    c:'free', ty:'FREE',     d:'A 20–30 minute easy walk replaces the workout; bath and a real light-fuel snack' },
+  { s:'19:15', m:30,  n:'FOM-4 · Analysis (short)',c:'fom',  ty:'DEEP-LITE',d:'Today’s X problems and the weakest proof only — compressed', k:'fom4', code:'FOM-4', st:1 },
+  { s:'19:45', m:10,  n:'Shutdown ritual',         c:'rec',  ty:'RECOVERY', d:'Card for tomorrow: pick the smaller of two seeds' },
+  { s:'19:55', m:100, n:'Free evening',            c:'free', ty:'FREE',     d:'No study' },
+  { s:'21:35', m:20,  n:'Evening reading',         c:'rec',  ty:'RECOVERY', d:'Paper book' },
+  { s:'21:55', m:35,  n:'Dinner',                  c:'rec',  ty:'FUEL',     d:'Fixed window, light' },
+  { s:'22:30', m:40,  n:'REV (short) — last block',c:'rev', ty:'STUDY',    d:'Maths 25 (queue 15 + recall 10) + others 15 (Physics 5 · Chemistry 5 · CS/English 5)', k:'rev', code:'REV', st:1 },
+  { s:'23:10', m:5,   n:'Night routine',           c:'rec',  ty:'RECOVERY', d:'—' },
+  { s:'23:15', m:465, n:'Sleep',                   c:'rec',  ty:'RECOVERY', d:'7 h 45 m — earlier on purpose', k:'sleep', code:'SLEEP' }
+];
+
+/* ---------- Minimum load day — weekday template (22.4) ---------- */
+TL.weekdayMinimum = [
+  { s:'07:00', m:45,  n:'Back to bed',             c:'rec',  ty:'RECOVERY', d:'After the check, go back to bed' },
+  { s:'07:45', m:30,  n:'Slow wake-up routine',    c:'rec',  ty:'RECOVERY', d:'Water, wash, natural light. Skip mobility if you do not feel like it' },
+  { s:'08:15', m:30,  n:'Gentle FOM touch',        c:'fom',  ty:'DEEP',     d:'One Tier-1 problem, or re-read yesterday’s notes — the streak keeper', k:'fom1', code:'FOM-1', st:1 },
+  { s:'08:45', m:45,  n:'Breakfast + bath',        c:'rec',  ty:'FUEL',     d:'Slow' },
+  { s:'09:30', m:60,  n:'Outdoor walk / stretch',  c:'rec',  ty:'MOVE',     d:'Natural light, no phone' },
+  { s:'10:30', m:180, n:'Free time',               c:'free', ty:'FREE',     d:'Hobby, music, family. Not a screen binge' },
+  { s:'13:30', m:30,  n:'Lunch',                   c:'rec',  ty:'FUEL',     d:'—' },
+  { s:'14:00', m:30,  n:'Nap 1',                   c:'rec',  ty:'RECOVERY', d:'—' },
+  { s:'14:30', m:10,  n:'Reset',                   c:'rec',  ty:'RECOVERY', d:'—' },
+  { s:'14:40', m:290, n:'Free time — long',        c:'free', ty:'FREE',     d:'No study' },
+  { s:'19:30', m:10,  n:'Shutdown ritual',         c:'rec',  ty:'RECOVERY', d:'One sentence about how you feel; choose tomorrow’s load' },
+  { s:'19:40', m:115, n:'Free evening',            c:'free', ty:'FREE',     d:'—' },
+  { s:'21:35', m:20,  n:'Evening reading',         c:'rec',  ty:'RECOVERY', d:'—' },
+  { s:'21:55', m:35,  n:'Dinner',                  c:'rec',  ty:'FUEL',     d:'Fixed window' },
+  { s:'22:30', m:15,  n:'REV-lite — last block',   c:'rev',  ty:'STUDY',    d:'Ten cards from any subjects, nothing else', k:'rev', code:'REV', st:1 },
+  { s:'22:45', m:10,  n:'Wind-down',               c:'rec',  ty:'RECOVERY', d:'No screens' },
+  { s:'22:55', m:5,   n:'Night routine',           c:'rec',  ty:'RECOVERY', d:'—' },
+  { s:'23:00', m:480, n:'Sleep',                   c:'rec',  ty:'RECOVERY', d:'8 h — an early night on purpose', k:'sleep', code:'SLEEP' }
+];
+
+/* ---------- day modes — the load ladder (sections 22 + 27.2) ---------- */
+const MODES = {
+  full: {
+    label:'Full', target:640, lightsOut:'23:45', color:'#34d399',
+    study:'Complete plan — 10 h 40 m of study',
+    note:'The full schedule exactly as written. Every study block runs at its planned length.'
+  },
+  light: {
+    label:'Light', target:560, lightsOut:'23:25', color:'#4fd1c5',
+    study:'Trimmed load — 9 h 20 m of study',
+    note:'FOM-4 30 · REV 50 · Physics 70 · Chemistry 70 · C+E 70. The 80 freed minutes go to a longer free evening, a longer Break 3 and an earlier lights-out.'
+  },
+  reduced: {
+    label:'Reduced', target:320, lightsOut:'23:15', color:'#fbbf24',
+    study:'Half load — 5 h 20 m of study',
+    note:'Short FOM-1 and FOM-2, Physics and Chemistry 50, one C+E item, FOM-4 30 and a short REV. Recovery blocks stay exactly as they are.'
+  },
+  minimum: {
+    label:'Minimum', target:45, lightsOut:'23:00', color:'#f87171',
+    study:'Recovery day — 45 min of study',
+    note:'Keep a thread of FOM alive: one Tier-1 problem or yesterday’s notes, plus ten revision cards. Everything else is recovery.'
+  }
+};
+/* legacy day-mode keys → current names */
+const MODE_ALIAS = { green:'full', lite:'light', yellow:'reduced', red:'minimum' };
+
+/* ---------- block reductions per load level ---------- */
+const LIGHT_OVERRIDE = {
+  weekday:  { 'FOM-4':30, 'REV':50, 'PHY':70, 'CHE':70, 'C+E':70, 'BRK3':30, 'FREE':70 },
+  saturday: { 'S2':60, 'PCM':40, 'C+E':30, 'REV-W':20 },
+  sunday:   { 'S3':60, 'C+E':20, 'REV-W':15 }
+};
+/* weekend load levels are derived from the weekday templates (the plan defines them for Mon–Fri) */
+const REDUCED_OVERRIDE = {
+  saturday: { 'S1':60, 'S2':45, 'PCM':30, 'C+E':20, 'REV-W':15 },
+  sunday:   { 'S3':45, 'S4':30, 'C+E':15, 'WR':30, 'REV-W':15 }
+};
+const MINIMUM_OVERRIDE = {
+  saturday: { 'S1':30, 'S2':0, 'PCM':0, 'C+E':0, 'REV-W':15 },
+  sunday:   { 'S3':30, 'S4':0, 'C+E':0, 'WR':0, 'REV-W':15 }
+};
+/* ---------- Deload week reductions (22.8) ---------- */
+const DELOAD_OVERRIDE = {
+  'FOM-1':90,'FOM-2':90,'FOM-3':0,'FOM-4':30,'PHY':50,'CHE':50,'C+E':40,'REV':40,
+  'S1':90,'S2':0,'PCM':30,'S3':0,'S4':45,'WR':30,'REV-W':0
+};
+
+/* ---------- milestone rows (25.1) ---------- */
+const MS_ROWS = [
+  { k:'fom1', name:'FOM-1', color:'#f5b544', cat:'fom' },
+  { k:'fom2', name:'FOM-2', color:'#f5b544', cat:'fom' },
+  { k:'fom3', name:'FOM-3', color:'#f5b544', cat:'fom' },
+  { k:'fom4', name:'FOM-4', color:'#f5b544', cat:'fom', fixed:'Every flag coded, caused, corrected; tally written' },
+  { k:'phy',  name:'PHY',   color:'#60a5fa', cat:'phy' },
+  { k:'che',  name:'CHE',   color:'#a78bfa', cat:'chem' },
+  { k:'ce',   name:'C+E',   color:'#fb7185', cat:'cseng' },
+  { k:'rev',  name:'REV',   color:'#818cf8', cat:'rev' }
+];
+
+/* ---------- error codes (9.8) ---------- */
+const CODES = [
+  { c:'C', t:'Concept gap',            f:'Re-derive from first principles; add a card to the queue' },
+  { c:'T', t:'Technique not recalled',  f:'Make a technique card; do 3 similar problems' },
+  { c:'A', t:'Algebra / arithmetic',   f:'Write every line; sanity-check with a special case' },
+  { c:'P', t:'Proof gap',              f:'Rewrite with the 10-point checklist' },
+  { c:'M', t:'Misread the question',   f:'Restate the problem in your own words first' },
+  { c:'S', t:'Speed / time management',f:'Timed mini-sets; skip-and-return rule' },
+  { c:'D', t:'Gave up early',           f:'Apply the stuck ladder strictly' }
+];
+const SUBJECTS = ['FOM','Physics','Chemistry','Computer Science','English'];
+
+/* ---------- energy metrics (23.2) ---------- */
+const METRICS = [
+  { k:'sleepQuality', label:'Sleep quality' },
+  { k:'energy',       label:'Energy' },
+  { k:'mood',         label:'Mood' },
+  { k:'focus',        label:'Focus' },
+  { k:'motivation',   label:'Motivation' }
+];
+const SLEEPINESS_SLOTS = ['11:05','15:25','16:45'];
+
+/* ---------- module curriculum (26.3) ---------- */
+const MODULES = [
+  { id:'A-00', p:'A', t:'Arithmetic & Number Sense',              w:1,  win:'9 – 15 Nov 2026',      from:'2026-11-09', to:'2026-11-15' },
+  { id:'A-01', p:'A', t:'Sets, Numbers & Divisibility',           w:2,  win:'16 – 29 Nov 2026',     from:'2026-11-16', to:'2026-11-29' },
+  { id:'A-02', p:'A', t:'Counting & Induction',                   w:3,  win:'30 Nov – 20 Dec 2026', from:'2026-11-30', to:'2026-12-20' },
+  { id:'A-03', p:'A', t:'Logarithms, Polynomials & Quadratics',    w:2,  win:'21 Dec – 3 Jan 2027',  from:'2026-12-21', to:'2027-01-03' },
+  { id:'A-04', p:'A', t:'Sequences & Inequalities',                w:2,  win:'4 – 17 Jan 2027',      from:'2027-01-04', to:'2027-01-17' },
+  { id:'A-05', p:'A', t:'Complex Numbers, Matrices & Determinants',w:2,  win:'18 – 31 Jan 2027',     from:'2027-01-18', to:'2027-01-31' },
+  { id:'B-01', p:'B', t:'Plane & Coordinate Geometry Foundations',w:3,  win:'1 – 21 Feb 2027',      from:'2027-02-01', to:'2027-02-21' },
+  { id:'B-02', p:'B', t:'Triangles & Mensuration',                 w:2,  win:'22 Feb – 7 Mar 2027',  from:'2027-02-22', to:'2027-03-07' },
+  { id:'B-03', p:'B', t:'Conic Sections',                          w:3,  win:'8 – 28 Mar 2027',      from:'2027-03-08', to:'2027-03-28' },
+  { id:'C-01', p:'C', t:'Angles & Trigonometric Functions',       w:2,  win:'29 Mar – 11 Apr 2027', from:'2027-03-29', to:'2027-04-11' },
+  { id:'C-02', p:'C', t:'Identities & Equations',                 w:2,  win:'12 – 25 Apr 2027',     from:'2027-04-12', to:'2027-04-25' },
+  { id:'C-03', p:'C', t:'Triangles & Applications',                w:2,  win:'26 Apr – 9 May 2027',  from:'2027-04-26', to:'2027-05-09' },
+  { id:'D-01', p:'D', t:'Sequences, Functions & Limits',           w:3,  win:'10 – 30 May 2027',     from:'2027-05-10', to:'2027-05-30' },
+  { id:'D-02', p:'D', t:'Differentiation',                         w:3,  win:'31 May – 20 Jun 2027', from:'2027-05-31', to:'2027-06-20' },
+  { id:'D-03', p:'D', t:'Curve Sketching',                        w:1,  win:'21 – 27 Jun 2027',     from:'2027-06-21', to:'2027-06-27' },
+  { id:'D-04', p:'D', t:'Integration & Applications',              w:2,  win:'28 Jun – 11 Jul 2027',  from:'2027-06-28', to:'2027-07-11' },
+  { id:'D-05', p:'D', t:'Differential Equations',                  w:1,  win:'12 – 18 Jul 2027',     from:'2027-07-12', to:'2027-07-18' },
+  { id:'E-01', p:'E', t:'Number Theory',                           w:6,  win:'19 Jul – 29 Aug 2027', from:'2027-07-19', to:'2027-08-29' },
+  { id:'E-02', p:'E', t:'Combinatorics',                           w:6,  win:'30 Aug – 10 Oct 2027',from:'2027-08-30', to:'2027-10-10' },
+  { id:'E-03', p:'E', t:'Olympiad Inequalities',                   w:5,  win:'11 Oct – 14 Nov 2027', from:'2027-10-11', to:'2027-11-14' },
+  { id:'E-04', p:'E', t:'Functional Equations',                    w:4,  win:'15 Nov – 12 Dec 2027', from:'2027-11-15', to:'2027-12-12' },
+  { id:'E-05', p:'E', t:'Olympiad Synthetic Geometry',            w:5,  win:'13 Dec 2027 – 16 Jan 2028', from:'2027-12-13', to:'2028-01-16' }
+];
+const MOD_PARTS = {
+  A:'Part I · Foundations', B:'Part II · Geometry', C:'Part III · Trigonometry',
+  D:'Part IV · Calculus', E:'Part V · Olympiad'
+};
+const MOD_CHECKS = [
+  { k:'t1', l:'Tier I' }, { k:'t2', l:'Tier II' }, { k:'t3', l:'Tier III' },
+  { k:'mix', l:'Mixed review' }, { k:'test', l:'Module test' },
+  { k:'m1', l:'Attempt 1', m:'M1' }, { k:'m2', l:'Attempt 2', m:'M2' }, { k:'m3', l:'Attempt 3', m:'M3' },
+  { k:'refl', l:'Reflection' }
+];
+
+/* ---------- weekly review subjects (25.5) ---------- */
+const WR_SUBJECTS = ['FOM','PHY','CHE','C+E','REV'];
+
+/* ---------- nav ---------- */
+const PAGES = [
+  { id:'today',     label:'Today',           icon:'M12 3v3m0 9l3-3m-3 3-3-3m6 6a9 9 0 1 1-18 0 9 9 0 0 1 18 0z' },
+  { id:'milestone', label:'Milestone Card', icon:'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9h6m-6 4h4' },
+  { id:'errors',    label:'Error Log',       icon:'M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z' },
+  { id:'energy',    label:'Energy & Sleep',  icon:'M13 2 3 14h7l-1 8 11-13h-7l1-7z' },
+  { id:'weekly',    label:'Weekly Review',   icon:'M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z' },
+  { id:'modules',   label:'Modules',         icon:'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z' },
+  { id:'settings',  label:'Settings',        icon:'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z' }
+];
+/* ============================================================
+   Core — state, storage, dates, router
+   ============================================================ */
+
+/* ---------- tiny helpers ---------- */
+const $  = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const pad2 = n => String(n).padStart(2, '0');
+const uid = () => 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+/* ---------- date utils (local time, ISO = YYYY-MM-DD) ---------- */
+function iso(d){ return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
+function parseISO(s){ const p = String(s||'').split('-').map(Number); return new Date(p[0], (p[1]||1)-1, p[2]||1); }
+function todayISO(){ return iso(new Date()); }
+function addDays(s, n){ const d = parseISO(s); d.setDate(d.getDate()+n); return iso(d); }
+function diffDays(a, b){ return Math.round((parseISO(b) - parseISO(a)) / 86400000); }
+function weekdayOf(s){ return parseISO(s).getDay(); }           // 0=Sun
+function dayType(s){ const w = weekdayOf(s); return w===6 ? 'saturday' : w===0 ? 'sunday' : 'weekday'; }
+const WD_LONG  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const WD_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function fmtDate(s, opts){ const d = parseISO(s); return d.toLocaleDateString(undefined, opts||{ weekday:'short', day:'numeric', month:'short' }); }
+function fmtLong(s){ return parseISO(s).toLocaleDateString(undefined,{ weekday:'long', day:'numeric', month:'long', year:'numeric' }); }
+function relDay(s){ const n = diffDays(todayISO(), s); if(n===0) return 'Today'; if(n===1) return 'Tomorrow'; if(n===-1) return 'Yesterday'; if(n<0) return Math.abs(n)+' days ago'; return 'in '+n+' days'; }
+function minutesOf(hhmm){ const p = hhmm.split(':').map(Number); return p[0]*60+p[1]; }
+function fmtMin(m){ m = Math.max(0, Math.round(m)); return Math.floor(m/60)+' h '+pad2(m%60)+' m'; }
+function fmtHM(m){ m = Math.max(0, Math.round(m)); return pad2(Math.floor(m/60))+':'+pad2(m%60); }
+function fmtClock(d){ return pad2(d.getHours())+':'+pad2(d.getMinutes()); }
+function fmtHM12(hhmm){ const p = hhmm.split(':').map(Number); const h = p[0], m = p[1]; const ap = h>=12?'pm':'am'; const hh = h%12===0?12:h%12; return hh+':'+pad2(m)+' '+ap; }
+function fmtDur(m){ m = Math.max(0, Math.round(m)); return Math.floor(m/60)+' h '+pad2(m%60)+' m'; }
+function fmtDurShort(m){ m = Math.max(0, Math.round(m)); return m>=60 ? Math.floor(m/60)+'h'+pad2(m%60) : m+'m'; }
+
+/* Monday-anchored week key */
+function weekStart(s){ const d = parseISO(s); const w = (d.getDay()+6)%7; d.setDate(d.getDate()-w); return iso(d); }
+function weekDays(s){ const st = weekStart(s); const out=[]; for(let i=0;i<7;i++) out.push(addDays(st,i)); return out; }
+function weekLabel(s){ const st = weekStart(s); const en = addDays(st,6); return fmtDate(st,{day:'numeric',month:'short'})+' – '+fmtDate(en,{day:'numeric',month:'short',year:'numeric'}); }
+
+/* ---------- state ---------- */
+const INITIAL_KEY_DATES = () => ([
+  { id:'k1', date:'2026-11-09', label:'Plan launch — FOM A-00 begins', type:'Plan' },
+  { id:'k2', date:'2026-11-30', label:'Deload week 4 begins', type:'Deload' },
+  { id:'k3', date:'2026-12-28', label:'Deload week 8 begins', type:'Deload' },
+  { id:'k4', date:'2027-01-25', label:'Deload week 12 begins', type:'Deload' }
+]);
+const DEFAULT_STATE = () => ({
+  version: SCHEMA_VERSION,
+  settings: {
+    startDate: DEFAULT_START,
+    keyDates: []
+  },
+  days: {},
+  errors: [],
+  modules: {},
+  weekly: {}
+});
+
+let S = DEFAULT_STATE();
+let UI = {
+  page: 'today',
+  date: todayISO(),
+  tab: 'tally',
+  expanded: null,          // expanded timeline block key
+  modal: null,             // 'error' | null
+  editingError: null
+};
+
+/* ---------- milestone records (canonical rows + per-block) ---------- */
+function readMs(date, b){
+  const rec = S.days[date];
+  if(!rec) return null;
+  if(b.msKey) return (rec.ms && rec.ms[b.msKey]) || null;
+  return (rec.blockMs && rec.blockMs[b.uid]) || null;
+}
+function readMsTarget(date, target, kind){
+  const rec = S.days[date];
+  if(!rec) return null;
+  if(kind === 'row') return (rec.ms && rec.ms[target]) || null;
+  return (rec.blockMs && rec.blockMs[target]) || null;
+}
+function msTargetRec(date, target, kind){
+  const rec = dayRec(date);
+  if(kind === 'row'){
+    if(!rec.ms[target]) rec.ms[target] = { text:'', evidence:'', status:'' };
+    return rec.ms[target];
+  }
+  if(!rec.blockMs) rec.blockMs = {};
+  if(!rec.blockMs[target]) rec.blockMs[target] = { text:'', evidence:'', status:'' };
+  return rec.blockMs[target];
+}
+
+/* ---------- persistence ---------- */
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw){
+      S = DEFAULT_STATE();
+      S.settings.keyDates = INITIAL_KEY_DATES();
+      save(true);
+      return;
+    }
+    const parsed = JSON.parse(raw);
+    S = migrate(parsed);
+  }catch(e){ console.warn('Could not read saved data, starting fresh.', e); S = DEFAULT_STATE(); }
+}
+function migrate(p){
+  const base = DEFAULT_STATE();
+  if(!p || typeof p !== 'object') return base;
+  if(p.days && typeof p.days === 'object'){
+    Object.keys(p.days).forEach(d => {
+      const rec = p.days[d];
+      if(rec && rec.mode && MODE_ALIAS[rec.mode]) rec.mode = MODE_ALIAS[rec.mode];
+    });
+  }
+  return {
+    version: SCHEMA_VERSION,
+    settings: Object.assign(base.settings, p.settings||{}),
+    days: p.days && typeof p.days === 'object' ? p.days : {},
+    errors: Array.isArray(p.errors) ? p.errors : [],
+    modules: p.modules && typeof p.modules === 'object' ? p.modules : {},
+    weekly: p.weekly && typeof p.weekly === 'object' ? p.weekly : {}
+  };
+}
+let saveTimer = null;
+function save(immediate){
+  const doIt = () => {
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }
+    catch(e){ console.error('Save failed', e); }
+    saveTimer = null;
+  };
+  if(saveTimer) clearTimeout(saveTimer);
+  if(immediate) doIt(); else saveTimer = setTimeout(doIt, 220);
+}
+function dayRec(date){
+  if(!S.days[date]){
+    S.days[date] = {
+      mode: null, improvement: '', fom4: { flagged:0, corrected:0, doubt:0, resolve:'' },
+      sleep: { lightsOut:'', wake:'', hours:null },
+      ms: {}, blockMs: {}, msFooter: { unfinished:'', hardest:'' },
+      energy: {}, sleepiness: {}, nap:false, workout:false, workoutType:'', blocks: {}
+    };
+  }
+  const d = S.days[date];
+  if(!d.mode) d.mode = 'full';
+  if(!d.fom4) d.fom4 = { flagged:0, corrected:0, doubt:0, resolve:'' };
+  if(!d.sleep) d.sleep = { lightsOut:'', wake:'', hours:null };
+  if(!d.ms) d.ms = {};
+  if(!d.blockMs) d.blockMs = {};
+  if(!d.msFooter) d.msFooter = { unfinished:'', hardest:'' };
+  if(!d.energy) d.energy = {};
+  if(!d.sleepiness) d.sleepiness = {};
+  if(!d.blocks) d.blocks = {};
+  return d;
+}
+function msRec(date, key){
+  const d = dayRec(date);
+  if(!d.ms[key]) d.ms[key] = { text:'', evidence:'', status:'' };
+  return d.ms[key];
+}
+/* read-only view of a day — never creates a record */
+function peekDay(date){
+  if(S.days[date]) return S.days[date];
+  return {
+    mode:'full', improvement:'', fom4:{ flagged:0, corrected:0, doubt:0, resolve:'' },
+    sleep:{ lightsOut:'', wake:'', hours:null }, ms:{}, blockMs:{}, msFooter:{ unfinished:'', hardest:'' },
+    energy:{}, sleepiness:{}, nap:false, workout:false, workoutType:'', blocks:{}
+  };
+}
+
+/* ---------- plan / deload ---------- */
+/* what a deload week costs, and what the same day costs at full load */
+function deloadTarget(date){ return targetFor(date, 'full', false); }
+function fullTarget(date){ return targetFor(date, 'full', true); }
+function planStart(){ return S.settings.startDate || DEFAULT_START; }
+function planWeek(s){ return Math.floor(diffDays(planStart(), s)/7) + 1; }
+function isDeloadWeek(s){ const w = planWeek(s); return w >= 1 && w % 4 === 0; }
+function weekPlanNote(s){
+  const w = planWeek(s);
+  if(w < 1) return 'Before the plan starts (' + fmtDate(planStart(), { day:'numeric', month:'short', year:'numeric' }) + ').';
+  if(isDeloadWeek(s)) return 'Week '+w+' of the plan — this is a deload week.';
+  return 'Week '+w+' of the plan.';
+}
+function nextDeloadInfo(s){
+  const start = planStart();
+  let wk = Math.ceil(Math.max(1, (diffDays(start, s)+1)/7));
+  // first deload week strictly after (or containing) current date
+  let candidate = wk;
+  while(candidate % 4 !== 0) candidate++;
+  const deloadStart = addDays(start, (candidate-1)*7);
+  return { week:candidate, start:deloadStart, days:diffDays(s, deloadStart) };
+}
+
+/* ---------- timeline ---------- */
+function templateFor(type, mode){
+  if(type === 'weekday'){
+    if(mode === 'reduced') return TL.weekdayReduced;
+    if(mode === 'minimum') return TL.weekdayMinimum;
+  }
+  return TL[type];
+}
+function timeline(date, modeOverride, ignoreDeload){
+  const type = dayType(date);
+  const mode = modeOverride || (S.days[date] && S.days[date].mode) || 'full';
+  const deload = !ignoreDeload && isDeloadWeek(date);
+  const blocks = templateFor(type, mode).map(b => Object.assign({}, b));
+
+  const applyOverride = (map, code, block) => {
+    if(code && Object.prototype.hasOwnProperty.call(map, code)){
+      const v = map[code];
+      if(v === 0){
+        block.m = 0; block.c = 'free'; block.st = 0;
+        block.d = 'Not part of this load level';
+        block.skipped = true;
+      } else {
+        block.m = v;
+      }
+    }
+  };
+
+  /* weekday load levels have their own templates; the weekend levels trim the base day */
+  if(mode === 'light'    && LIGHT_OVERRIDE[type])    blocks.forEach(b => applyOverride(LIGHT_OVERRIDE[type], b.code, b));
+  if(mode === 'reduced'  && REDUCED_OVERRIDE[type])  blocks.forEach(b => applyOverride(REDUCED_OVERRIDE[type], b.code, b));
+  if(mode === 'minimum'  && MINIMUM_OVERRIDE[type])  blocks.forEach(b => applyOverride(MINIMUM_OVERRIDE[type], b.code, b));
+  /* the deload week applies to the full schedule */
+  if(deload && mode === 'full') blocks.forEach(b => applyOverride(DELOAD_OVERRIDE, b.code, b));
+
+  /* lights-out shifts with the load level */
+  const lightsOut = MODES[mode].lightsOut;
+  const sleep = blocks.find(b => b.k === 'sleep');
+  if(sleep){
+    sleep.lightsOut = lightsOut;
+    sleep.s = lightsOut;
+    const baseWake = type === 'weekday' ? '07:00' : '07:30';
+    const wake = Math.max(0, minutesOf(baseWake) + (1440 - minutesOf(lightsOut)));
+    sleep.m = wake;
+    sleep.d = 'Fixed block — ' + fmtDur(wake) + ' (' + lightsOut + ' → ' + baseWake + ')';
+  }
+
+  let acc = 0;
+  blocks.forEach(b => {
+    b.start = minutesOf(b.s);
+    b.end = b.start + b.m;
+    b.label = b.n;
+    b.color = CAT[b.c].color;
+    b.catLabel = CAT[b.c].label;
+    b.msKey = b.k && MS_ROWS.some(r => r.k === b.k) ? b.k : null;
+    b.isStudy = !!b.st;
+    b.idx = acc;
+    b.uid = type + ':' + acc;
+    acc++;
+  });
+
+  /* mark the live block */
+  if(date === todayISO()){
+    const now = new Date();
+    const nowMin = now.getHours()*60 + now.getMinutes();
+    blocks.forEach(b => {
+      b.active = (nowMin >= b.start && nowMin < b.end) || (b.end > 1440 && nowMin < b.end - 1440);
+    });
+  }
+  return { type, mode, deload, lightsOut, blocks };
+}
+/* the day's study target is read straight off the schedule it will actually run */
+function targetFor(date, modeOverride, ignoreDeload){
+  const tl = timeline(date, modeOverride, ignoreDeload);
+  let t = 0;
+  tl.blocks.forEach(b => { if(b.isStudy) t += b.m; });
+  return t;
+}
+
+/* ---------- derived metrics ---------- */
+function studyMinutes(date){
+  const tl = timeline(date);
+  const rec = S.days[date];
+  let total = 0;
+  tl.blocks.forEach(b => {
+    if(!b.isStudy || b.m <= 0) return;
+    const done = isBlockDone(date, b, tl);
+    if(done) total += b.m;
+  });
+  return total;
+}
+function isBlockDone(date, b, tl){
+  const rec = S.days[date];
+  const manual = rec && rec.blocks ? rec.blocks[b.uid] : undefined;
+  if(manual === true) return true;
+  if(manual === false) return false;
+  /* a marked milestone means a study block was attempted */
+  if(b.isStudy){
+    const m = readMs(date, b);
+    if(m && m.status) return true;
+  }
+  if(date === todayISO()){
+    const now = new Date();
+    const nowMin = now.getHours()*60 + now.getMinutes();
+    if(b.end <= 1440) return nowMin >= b.end;
+    return nowMin >= b.start;
+  }
+  return false;
+}
+function msStats(date){
+  let hit=0, miss=0, marked=0;
+  MS_ROWS.forEach(r => {
+    const rec = S.days[date] && S.days[date].ms ? S.days[date].ms[r.k] : null;
+    if(!rec) return;
+    if(rec.status === 'hit'){ hit++; marked++; }
+    else if(rec.status === 'miss'){ miss++; marked++; }
+  });
+  return { hit, miss, marked, total:MS_ROWS.length };
+}
+function sleepHours(date){
+  const d = S.days[date];
+  if(d && d.sleep && typeof d.sleep.hours === 'number') return d.sleep.hours;
+  /* the night that ended on this date's morning */
+  const type = dayType(date);
+  const wakeMin = type === 'weekday' ? 420 : 450;
+  const prev = addDays(date, -1);
+  const prevMode = (S.days[prev] && S.days[prev].mode) || 'full';
+  const lo = MODES[prevMode].lightsOut;
+  const mins = wakeMin + 1440 - minutesOf(lo);
+  if(mins <= 0 || mins > 1200) return null;
+  return Math.round(mins/60*100)/100;
+}
+function streakCount(){
+  const start = planStart();
+  let n = 0;
+  let d = todayISO();
+  const guard = 400;
+  let i = 0;
+  while(i++ < guard){
+    if(diffDays(start, d) < 0) break;
+    const rec = S.days[d];
+    const mode = rec && rec.mode ? rec.mode : null;
+    const h = rec && rec.sleep && typeof rec.sleep.hours === 'number' ? rec.sleep.hours : sleepHours(d);
+    if(mode === 'full' && h !== null && h >= 7) n++;
+    else break;
+    d = addDays(d, -1);
+  }
+  return n;
+}
+function weeklyEnergy(weekStartISO){
+  const days = weekDays(weekStartISO);
+  let sum = 0, count = 0;
+  days.forEach(d => {
+    const e = (S.days[d] && S.days[d].energy) || {};
+    METRICS.forEach(m => {
+      const v = e[m.k];
+      if(typeof v === 'number' && v >= 1){ sum += v; count++; }
+    });
+  });
+  return count ? sum/count : null;
+}
+function energyZone(avg){
+  if(avg === null || avg === undefined) return null;
+  if(avg >= 3.5) return { z:'green', label:'Green', action:'Normal week — keep the Full load.' };
+  if(avg >= 2.5) return { z:'yellow', label:'Yellow', action:'Step down to the Light load. REV-A and C+E optional; one extra free evening; recheck on Wednesday.' };
+  return { z:'red', label:'Red', action:'Start a deload week now and use the response ladder.' };
+}
+function weekErrorStats(weekStartISO){
+  const days = weekDays(weekStartISO);
+  const set = new Set(days);
+  const codes = {}; let h=0, x=0, n=0;
+  S.errors.forEach(e => {
+    if(!set.has(e.date)) return;
+    n++;
+    if(e.mark === 'H') h++;
+    if(e.mark === 'X') x++;
+    codes[e.code] = (codes[e.code]||0)+1;
+  });
+  let top = null, topN = 0;
+  Object.keys(codes).forEach(c => { if(codes[c] > topN){ top = c; topN = codes[c]; } });
+  return { codes, top, topN, h, x, n };
+}
+function weekAutoStats(weekStartISO){
+  const days = weekDays(weekStartISO);
+  let nightsUnder = 0, workouts = 0, flagged = 0, corrected = 0;
+  days.forEach(d => {
+    const rec = S.days[d];
+    if(!rec) return;
+    const h = rec.sleep && typeof rec.sleep.hours === 'number' ? rec.sleep.hours : sleepHours(d);
+    if(h !== null && h < 7) nightsUnder++;
+    if(rec.workout) workouts++;
+    if(rec.fom4){ flagged += rec.fom4.flagged||0; corrected += rec.fom4.corrected||0; }
+  });
+  return { nightsUnder, workouts, flagged, corrected };
+}
+function moduleProgress(){
+  let done = 0, total = MODULES.length * MOD_CHECKS.length;
+  MODULES.forEach(m => {
+    const rec = S.modules[m.id] || {};
+    MOD_CHECKS.forEach(c => { if(rec[c.k]) done++; });
+  });
+  return { done, total, pct: total ? done/total*100 : 0 };
+}
+function currentModule(date){
+  for(const m of MODULES){ if(date >= m.from && date <= m.to) return m; }
+  return null;
+}
+function dataPointCount(){
+  let n = Object.keys(S.days).length + S.errors.length + Object.keys(S.modules).length + Object.keys(S.weekly).length;
+  return n;
+}
+
+/* ---------- router ---------- */
+const ROUTES = {
+  today:     { title:'Today',           render:renderToday },
+  milestone: { title:'Milestone Card', render:renderMilestone },
+  errors:    { title:'Error Log',       render:renderErrors },
+  energy:    { title:'Energy & Sleep',  render:renderEnergy },
+  weekly:    { title:'Weekly Review',   render:renderWeekly },
+  modules:   { title:'Modules',         render:renderModules },
+  settings:  { title:'Settings',        render:renderSettings }
+};
+function parseHash(){
+  const h = (location.hash || '').replace(/^#\/?/, '');
+  const parts = h.split('/');
+  const page = ROUTES[parts[0]] ? parts[0] : 'today';
+  const date = parts[1] && /^\d{4}-\d{2}-\d{2}$/.test(parts[1]) ? parts[1] : null;
+  return { page, date };
+}
+function go(page, date){
+  const d = date || UI.date || todayISO();
+  location.hash = '#/' + page + '/' + d;
+}
+function navigate(){
+  const { page, date } = parseHash();
+  UI.page = page;
+  if(date) UI.date = date;
+  if(UI.date === '') UI.date = todayISO();
+  render();
+}
+function render(focusView){
+  const r = ROUTES[UI.page];
+  $('#pgTitle').textContent = r.title;
+  $('#pgSub').textContent = pageSubtitle();
+  renderNav();
+  renderModes();
+  renderSidebarFoot();
+  const view = $('#view');
+  view.innerHTML = r.render();
+  if(focusView !== false) view.focus({ preventScroll:true });
+  updateClock();
+}
+function pageSubtitle(){
+  if(UI.page === 'today')     return fmtLong(UI.date);
+  if(UI.page === 'milestone') return 'Milestone Card · ' + fmtLong(UI.date);
+  if(UI.page === 'errors')    return 'Every mistake found, coded and corrected';
+  if(UI.page === 'energy')    return 'Daily five scores · ' + fmtLong(UI.date);
+  if(UI.page === 'weekly')    return 'Week of ' + weekLabel(UI.date);
+  if(UI.page === 'modules')   return '22-module curriculum · FOM → Olympiad';
+  return 'Plan, export and key dates';
+}
+function renderNav(){
+  const errCount = S.errors.length;
+  $('#nav').innerHTML =
+    '<div class="nav-group"><div class="nav-group-label">Tracker</div>' +
+    PAGES.slice(0,6).map(p => navItem(p)).join('') +
+    '</div>' +
+    '<div class="nav-group"><div class="nav-group-label">Curriculum</div>' +
+    navItem(PAGES[6]) +
+    '</div>';
+  function navItem(p){
+    const badge = (p.id === 'errors' && errCount) ? '<span class="nav-badge">'+errCount+'</span>' : '';
+    return '<a class="nav-item'+(UI.page===p.id?' active':'')+'" href="#/'+p.id+'/'+UI.date+'" data-page="'+p.id+'">' +
+      '<svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="'+p.icon+'"/></svg>' +
+      '<span>'+p.label+'</span>'+badge+'</a>';
+  }
+}
+function renderModes(){
+  const mode = (S.days[UI.date] && S.days[UI.date].mode) || 'full';
+  $$('#modes button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
+}
+function renderSidebarFoot(){
+  $('#footStart').textContent = fmtDate(planStart(), { day:'numeric', month:'short' });
+  const w = planWeek(UI.date);
+  $('#footWeek').textContent = (w >= 1) ? ('W'+w + (isDeloadWeek(UI.date) ? ' · deload' : '')) : 'pre-launch';
+  $('#footPoints').textContent = dataPointCount();
+}
+/* ============================================================
+   Inline SVG charts — no libraries, no canvas
+   ============================================================ */
+
+/* ---------- shared: bar chart with optional overlay series ---------- */
+function svgBarChart(rows, opts){
+  opts = opts || {};
+  const W = 640, H = opts.height || 190;
+  const padL = 30, padR = 12, padT = 14, padB = 28;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const max = Math.max(1, ...rows.map(r => Math.max(r.a, r.b || 0)));
+  const step = Math.max(1, Math.ceil(max/4));
+  const top = step*4;
+  const y = v => padT + ih - (v/top)*ih;
+  const bw = iw/rows.length;
+  const barW = Math.min(22, bw*0.42);
+
+  let g = '';
+  for(let i=0;i<=4;i++){
+    const v = top*i/4, yy = y(v);
+    g += '<line class="grid-l" x1="'+padL+'" y1="'+yy.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+yy.toFixed(1)+'"/>';
+    g += '<text class="axis-lbl" x="'+(padL-7)+'" y="'+(yy+3).toFixed(1)+'" text-anchor="end">'+v+'</text>';
+  }
+  rows.forEach((r,i) => {
+    const cx = padL + bw*i + bw/2;
+    const ha = top ? (r.a/top)*ih : 0;
+    const x = cx - barW - 1;
+    const hA = Math.max(r.a>0?2:0, ha);
+    const yA = padT + ih - hA;
+    g += '<rect x="'+x.toFixed(1)+'" y="'+yA.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+hA.toFixed(1)+'" rx="3" fill="'+r.color+'" opacity="'+(r.dim?'.38':'.9')+'"><title>'+esc(r.label+' — '+r.a+' flagged'+(r.b!=null?', '+r.b+' corrected':''))+'</title></rect>';
+    if(r.b != null){
+      const hB = Math.max(r.b>0?2:0, (r.b/top)*ih);
+      const x2 = cx + 1;
+      g += '<rect x="'+x2.toFixed(1)+'" y="'+(padT+ih-hB).toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+hB.toFixed(1)+'" rx="3" fill="'+r.color+'" opacity=".26"><title>'+esc(r.label+' — '+r.b+' corrected')+'</title></rect>';
+    }
+    if(i%2===0 || rows.length<=14){
+      g += '<text class="axis-lbl" x="'+cx.toFixed(1)+'" y="'+(H-9)+'" text-anchor="middle">'+esc(r.x)+'</text>';
+    }
+  });
+  g += '<line class="grid-l" x1="'+padL+'" y1="'+(padT+ih)+'" x2="'+(W-padR)+'" y2="'+(padT+ih)+'"/>';
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+(opts.aria||'Bar chart')+'">'+g+'</svg>';
+}
+
+/* ---------- multi-series line chart ---------- */
+function svgLineChart(days, series, opts){
+  opts = opts || {};
+  const W = 660, H = opts.height || 240;
+  const padL = 30, padR = 14, padT = 16, padB = 30;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const maxY = opts.maxY || 5, minY = opts.minY || 1;
+  const x = i => padL + (days.length>1 ? (iw*i/(days.length-1)) : iw/2);
+  const y = v => padT + ih - ((v-minY)/(maxY-minY))*ih;
+
+  let g = '';
+  for(let v=minY; v<=maxY; v++){
+    const yy = y(v);
+    g += '<line class="grid-l" x1="'+padL+'" y1="'+yy.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+yy.toFixed(1)+'"/>';
+    g += '<text class="axis-lbl" x="'+(padL-7)+'" y="'+(yy+3).toFixed(1)+'" text-anchor="end">'+v+'</text>';
+  }
+  if(opts.band){
+    const yb = y(opts.band.from), ya = y(opts.band.to);
+    g += '<rect x="'+padL+'" y="'+Math.min(yb,ya).toFixed(1)+'" width="'+iw+'" height="'+Math.abs(ya-yb).toFixed(1)+'" fill="'+opts.band.color+'" opacity=".07"/>';
+    g += '<line x1="'+padL+'" y1="'+y(opts.band.to).toFixed(1)+'" x2="'+(W-padR)+'" y2="'+y(opts.band.to).toFixed(1)+'" stroke="'+opts.band.color+'" stroke-width="1" stroke-dasharray="4 4" opacity=".45"/>';
+  }
+  days.forEach((d,i) => {
+    g += '<text class="axis-lbl" x="'+x(i).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle">'+esc(WD_SHORT[weekdayOf(d)])+'</text>';
+  });
+
+  series.forEach(s => {
+    const pts = s.values.map((v,i) => v==null ? null : [x(i), y(v)]);
+    let d = '', pen = false;
+    pts.forEach(p => {
+      if(!p){ pen = false; return; }
+      d += (pen ? ' L' : ' M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1);
+      pen = true;
+    });
+    if(d) g += '<path d="'+d.trim()+'" fill="none" stroke="'+s.color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>';
+    pts.forEach(p => {
+      if(!p) return;
+      g += '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3" fill="#151b24" stroke="'+s.color+'" stroke-width="2"><title>'+esc(s.label+' — '+(s.values[pts.indexOf(p)]||'')+' on '+days[pts.indexOf(p)])+'</title></circle>';
+    });
+  });
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+(opts.aria||'Line chart')+'">'+g+'</svg>';
+}
+
+/* ---------- simple donut (mode split) ---------- */
+function svgDonut(pct, color, size){
+  size = size || 62;
+  const r = size/2 - 7, cx = size/2, cy = size/2;
+  const c = 2*Math.PI*r;
+  const off = c*(1 - clamp(pct,0,100)/100);
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" role="img" aria-label="'+Math.round(pct)+' percent">'+
+    '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#1b2431" stroke-width="6"/>'+
+    '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 '+cx+' '+cy+')"/></svg>';
+}
+
+/* ---------- shared UI snippets ---------- */
+function dateNavHTML(date, attr){
+  attr = attr || 'data-date-nav';
+  return '<div class="datenav" '+attr+'>' +
+    '<button type="button" data-step="-1" aria-label="Previous day" title="Previous day"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>' +
+    '<input type="date" value="'+date+'" aria-label="Selected date">' +
+    '<button type="button" data-step="1" aria-label="Next day" title="Next day"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>' +
+    '</div>';
+}
+function segHTML(name, value, accent, min, max){
+  min = min==null ? 1 : min; max = max==null ? 5 : max;
+  let out = '<div class="seg" style="--seg-accent:'+(accent||'#f5b544')+'">';
+  for(let v=min; v<=max; v++){
+    const id = name + '-' + v;
+    out += '<label for="'+id+'"><input type="radio" id="'+id+'" name="'+name+'" value="'+v+'"'+(String(value)===String(v)?' checked':'')+'><span>'+v+'</span></label>';
+  }
+  return out + '</div>';
+}
+function switchHTML(id, checked, label){
+  return '<label class="switch"><input type="checkbox" id="'+id+'"'+(checked?' checked':'')+'><span class="track"><span class="knob"></span></span>'+
+    (label ? '<span class="sw-label">'+esc(label)+'</span>' : '')+'</label>';
+}
+function emptyState(icon, text){
+  return '<div class="empty"><div class="e-ico">'+icon+'</div>'+esc(text)+'</div>';
+}
+/* ============================================================
+   Page — Today
+   ============================================================ */
+function renderToday(){
+  const date = UI.date;
+  const tl = timeline(date);
+  const isToday = date === todayISO();
+  const mode = tl.mode;
+  const target = targetFor(date);
+  const studied = studyMinutes(date);
+  const sh = sleepHours(date);
+  const ms = msStats(date);
+  const dload = tl.deload;
+  const dloadInfo = nextDeloadInfo(date);
+  const rec = peekDay(date);
+
+  /* ---------- hero stats ---------- */
+  const sleepPct = sh == null ? 0 : clamp(sh/8*100, 0, 100);
+  const sleepFloor = sh == null ? null : (sh >= 7 ? 'ok' : (sh >= 6 ? 'warn' : 'bad'));
+  const sleepCol = sh == null ? '#7b8aa0' : (sh >= 7 ? '#34d399' : (sh >= 6 ? '#fbbf24' : '#f87171'));
+
+  const statSleep =
+    '<div class="stat">' +
+      '<i class="accent" style="background:'+sleepCol+'"></i>' +
+      '<div class="top"><span class="stat-icon" style="background:rgba(79,209,197,.12);color:#4fd1c5">'+
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'+
+      '</span><span class="label">Sleep last night</span></div>' +
+      '<div class="value" id="statSleep">'+(sh == null ? '—' : fmtDur(sh*60))+'</div>' +
+      '<div class="bar '+(sleepFloor==='ok'?'hit':sleepFloor==='bad'?'red':'')+'"><i style="width:'+sleepPct.toFixed(0)+'%"></i></div>' +
+      '<div class="foot" id="statSleepFoot">'+(sh == null
+        ? 'Not logged — floor is 7 h 00 m'
+        : (sh >= 7 ? 'Above the 7 h floor · '+(sh*60-420)+' min spare'
+                   : (sh*60).toFixed(0)+' min below the 7 h floor'))+'</div>' +
+    '</div>';
+
+  const statStudy =
+    '<div class="stat">' +
+      '<i class="accent" style="background:#f5b544"></i>' +
+      '<div class="top"><span class="stat-icon" style="background:rgba(245,181,68,.12);color:#f5b544">'+
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>'+
+      '</span><span class="label">Study minutes</span></div>' +
+      '<div class="value" id="statStudy">'+studied+'<small> / '+target+'</small></div>' +
+      '<div class="bar"><i id="statStudyBar" style="width:'+clamp(studied/target*100,0,100).toFixed(0)+'%"></i></div>' +
+      '<div class="foot" id="statStudyFoot">'+(studied>=target
+        ? 'Target met — '+studied+' of '+target+' min ('+MODES[mode].label+' mode)'
+        : (target-studied)+' min to the '+MODES[mode].label+' target of '+target)+'</div>' +
+    '</div>';
+
+  const statMs =
+    '<div class="stat">' +
+      '<i class="accent" style="background:#34d399"></i>' +
+      '<div class="top"><span class="stat-icon" style="background:rgba(52,211,153,.12);color:#34d399">'+
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg>'+
+      '</span><span class="label">Milestones HIT</span></div>' +
+      '<div class="value" id="statMs">'+ms.hit+'<small> / '+ms.total+'</small></div>' +
+      '<div class="bar hit"><i id="statMsBar" style="width:'+(ms.total?ms.hit/ms.total*100:0).toFixed(0)+'%"></i></div>' +
+      '<div class="foot" id="statMsFoot">'+ms.marked+' marked · '+ms.miss+' miss'+(ms.miss===1?'':'es')+' · '+ms.hit+' hit'+(ms.hit===1?'':'s')+'</div>' +
+    '</div>';
+
+  /* ---------- load-level banner ---------- */
+  const modeBanner = mode !== 'full' ?
+    '<div class="banner mode-'+mode+'">' +
+      '<div class="bi" style="background:'+MODES[mode].color+'22;color:'+MODES[mode].color+'">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3m0 9v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1"/></svg>'+
+      '</div>' +
+      '<div><b>'+MODES[mode].label+' load — '+MODES[mode].study+'</b>' +
+      '<p>'+esc(MODES[mode].note)+(tl.type!=='weekday' ? ' Weekend levels are scaled down from the weekday templates — the plan defines these load levels for Mon–Fri.' : '')+'</p></div>' +
+    '</div>' : '';
+
+  /* ---------- deload banner ---------- */
+  const dloadBanner = dload ?
+    '<div class="banner">' +
+      '<div class="bi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>' +
+      '<div><b>Deload week '+(planWeek(date)/4)+' · week '+planWeek(date)+' of the plan</b>' +
+      '<p>'+(mode==='full'
+        ? 'FOM-3 free · FOM-4 30 · Physics and Chemistry 50 · C+E 40 · REV 40 — '+deloadTarget(date)+' min of study instead of '+fullTarget(date)+'. Sleep is unchanged.'
+        : 'The full schedule is trimmed in a deload week. You are on the '+MODES[mode].label+' load, so this day runs at '+targetFor(date)+' min. Sleep is unchanged.')+'</p></div>' +
+    '</div>' : '';
+
+  /* ---------- now & next ---------- */
+  const nowBlock = isToday ? liveNowBlock(tl) : previewNowBlock(tl);
+
+  /* ---------- timeline ---------- */
+  const tlRows = tl.blocks.map(b => timelineRow(b, date, tl)).join('');
+
+  /* ---------- side widgets ---------- */
+  const f = rec.fom4;
+  const balance = f.flagged === 0
+    ? '<div class="check-note">No flags logged yet — count every mistake found in review.</div>'
+    : ((f.corrected + f.doubt) === f.flagged
+      ? '<div class="check-note ok">Balanced — every flag is accounted for.</div>'
+      : (f.flagged > (f.corrected+f.doubt)
+        ? '<div class="check-note bad">'+(f.flagged-(f.corrected+f.doubt))+' flag'+(f.flagged-(f.corrected+f.doubt)===1?'':'s')+' still unaccounted for.</div>'
+        : '<div class="check-note warn">More corrected + doubt than flagged — check the numbers.</div>'));
+
+  const widgets =
+    '<div class="grid" style="gap:14px">' +
+
+      /* FOM-4 tally */
+      '<div class="card widget">' +
+        '<h3><span class="live"></span>FOM-4 tally · today</h3>' +
+        '<div class="sleep-in" style="grid-template-columns:repeat(3,1fr)">' +
+          '<div><label class="fl" for="f4flag">Flagged</label><input class="input mono" id="f4flag" type="number" min="0" value="'+f.flagged+'" data-fom4="flagged"></div>' +
+          '<div><label class="fl" for="f4corr">Corrected</label><input class="input mono" id="f4corr" type="number" min="0" value="'+f.corrected+'" data-fom4="corrected"></div>' +
+          '<div><label class="fl" for="f4doubt">Doubt log</label><input class="input mono" id="f4doubt" type="number" min="0" value="'+f.doubt+'" data-fom4="doubt"></div>' +
+        '</div>' +
+        '<div id="f4balance">'+balance+'</div>' +
+        '<div class="field" style="margin-top:11px"><label class="fl" for="f4res">Re-solve on</label>' +          '<input class="input mono" id="f4res" type="date" value="'+esc(f.resolve||'')+'" data-fom4="resolve"></div>' +
+      '</div>' +
+
+      /* quick sleep entry */
+      '<div class="card widget">' +
+        '<h3>Sleep last night</h3>' +
+        '<div class="sleep-in">' +
+          '<div><label class="fl" for="slLO">Lights-out</label><input class="input" id="slLO" type="time" value="'+esc(rec.sleep.lightsOut||'')+'" data-sleep="lightsOut"></div>' +
+          '<div><label class="fl" for="slWK">Wake</label><input class="input" id="slWK" type="time" value="'+esc(rec.sleep.wake||'')+'" data-sleep="wake"></div>' +
+        '</div>' +
+        '<div id="sleepCalc"></div>' +
+      '</div>' +
+
+      /* next deload */
+      '<div class="card widget">' +
+        '<h3>Next deload week</h3>' +
+        '<div class="kvline"><span class="k">Week</span><span class="v" style="color:#818cf8">W'+dloadInfo.week+'</span></div>' +
+        '<div class="kvline"><span class="k">Starts</span><span class="v">'+fmtDate(dloadInfo.start,{day:'numeric',month:'short'})+'</span></div>' +
+        '<div class="kvline"><span class="k">Countdown</span><span class="v">'+(dloadInfo.days>0 ? dloadInfo.days+' days' : (dloadInfo.days===0?'today':'in week'))+'</span></div>' +
+        '<div class="check-note '+(dloadInfo.days<=7?'warn':'ok')+'" style="margin-top:10px">'+
+          (dloadInfo.days>0 ? 'Plan the deload before you need it — it is scheduled, not optional.'
+                            : 'You are inside a deload week right now.')+'</div>' +
+      '</div>' +
+
+      /* improvement */
+      '<div class="card widget">' +
+        '<h3>Today’s improvement</h3>' +
+        '<textarea class="textarea" id="improve" placeholder="One line — the one thing that got better today." data-improve>'+esc(rec.improvement||'')+'</textarea>' +
+        '<div class="kbdhint" style="margin-top:8px">Auto-saved. One line is enough.</div>' +
+      '</div>' +
+
+    '</div>';
+
+  return modeBanner + dloadBanner +
+    '<div class="grid g3" style="margin-bottom:16px">' + statSleep + statStudy + statMs + '</div>' +
+    '<div class="today-grid">' +
+      '<div class="grid" style="gap:16px">' +
+        nowBlock +
+        '<div class="card">' +
+          '<div class="card-head">' +
+            '<h2>Day timeline</h2>' +
+            '<span class="sub">'+(tl.type==='weekday'?'Weekday':tl.type==='saturday'?'Saturday':'Sunday')+' · '+tl.blocks.length+' blocks</span>' +
+            '<span class="tag" style="color:'+MODES[mode].color+';border-color:'+MODES[mode].color+'55;background:'+MODES[mode].color+'14">'+MODES[mode].label+' load</span>' +
+            '<span class="spacer"></span>' +
+            '<span class="sub">Click a block to log its milestone</span>' +
+          '</div>' +
+          '<div class="tl">'+tlRows+'</div>' +
+        '</div>' +
+      '</div>' +
+      '<aside>'+widgets+'</aside>' +
+    '</div>';
+}
+
+/* ---------- Now & Next: live (today) ---------- */
+function liveNowBlock(tl){
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes();
+  let idx = -1;
+  tl.blocks.forEach((b,i) => {
+    if(nowMin >= b.start && nowMin < b.end) idx = i;
+    else if(b.end > 1440 && nowMin < b.end - 1440) idx = i;
+  });
+  if(idx === -1){
+    return '<div class="card nowwrap"><div class="nowhead"><div class="nm"><h2>'+
+      (nowMin < tl.blocks[0].start ? 'Before the day starts' : 'Day complete')+'</h2>'+
+      '<p>'+(nowMin < tl.blocks[0].start ? 'First block: '+tl.blocks[0].n+' at '+fmtHM12(tl.blocks[0].s) : 'Every block for today has finished. Revision closed the day.')+
+      '</p></div></div></div>';
+  }
+  const b = tl.blocks[idx];
+  const elapsed = nowMin >= b.start ? nowMin - b.start : nowMin + 1440 - b.start;
+  const remain = Math.max(0, b.m - elapsed);
+  const pct = b.m ? clamp(elapsed/b.m*100, 0, 100) : 0;
+  const next1 = tl.blocks[idx+1], next2 = tl.blocks[idx+2];
+
+  return '<div class="card nowwrap" style="--now-c:'+b.color+'">' +
+    '<div class="nowhead">' +
+      '<div class="nm">' +
+        '<div class="pill" style="background:'+b.color+'18;color:'+b.color+';border-color:'+b.color+'44;margin-bottom:9px"><i class="dot"></i>'+
+          esc(b.ty)+'</div>' +
+        '<h2 id="nowName">'+esc(b.n)+'</h2>' +
+        '<p id="nowDesc">'+esc(b.d)+'</p>' +
+      '</div>' +
+      '<div class="rt">' +
+        '<div class="big" id="nowRemain">'+fmtDurShort(remain)+'</div>' +
+        '<div class="cap" id="nowCap">remaining</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="nowbody">' +
+      '<div class="nowbar"><i id="nowBar" style="width:'+pct.toFixed(1)+'%"></i></div>' +
+      '<div class="nowmeta">' +
+        '<span>Block <b id="nowRange">'+fmtHM12(b.s)+' – '+fmtHM12(fmtHM(b.end>1440? b.end-1440 : b.end))+'</b></span>' +
+        '<span>Elapsed <b id="nowElapsed">'+fmtDurShort(elapsed)+'</b></span>' +
+        '<span>Planned <b>'+fmtDurShort(b.m)+'</b></span>' +
+        '<span>Ends <b id="nowEnd">'+fmtHM12(fmtHM(b.end>1440? b.end-1440 : b.end))+'</b></span>' +
+        '<span>Progress <b id="nowPct">'+pct.toFixed(0)+'%</b></span>' +
+      '</div>' +
+      '<div class="nextrow">' +
+        nextCard(next1, 1) +
+        nextCard(next2, 2) +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+function nextCard(b, n){
+  if(!b) return '<div class="nextcard"><span class="n">Next '+n+'</span><div><h4 class="muted">—</h4><p class="faint">Nothing left today. Revision closes the day; sleep seals it.</p></div></div>';
+  return '<div class="nextcard"><i class="rail" style="background:'+b.color+'"></i>' +
+    '<span class="n">'+fmtHM12(b.s)+'</span>' +
+    '<div><h4>'+esc(b.n)+'</h4><p>'+esc(b.d)+'</p></div>' +
+    '<span class="n" style="margin-left:auto">'+(b.m>=60? Math.floor(b.m/60)+'h'+(b.m%60?pad2(b.m%60):'') : b.m+'m')+'</span>' +
+  '</div>';
+}
+
+/* ---------- Now & Next: preview (not today) ---------- */
+function previewNowBlock(tl){
+  const b0 = tl.blocks[0], b1 = tl.blocks[1], b2 = tl.blocks[2];
+  return '<div class="card nowwrap">' +
+    '<div class="nowhead">' +
+      '<div class="nm">' +
+        '<div class="pill" style="background:rgba(123,138,160,.14);color:#7b8aa0;border-color:#2a3444;margin-bottom:9px"><i class="dot"></i>Day preview</div>' +
+        '<h2>'+esc(b0.n)+'</h2>' +
+        '<p>'+esc(b0.d)+'</p>' +
+      '</div>' +
+      '<div class="rt"><div class="big">'+fmtHM12(b0.s)+'</div><div class="cap">first block</div></div>' +
+    '</div>' +
+    '<div class="nowbody">' +
+      '<div class="nowmeta"><span>'+fmtLong(UI.date)+'</span><span>Mode <b>'+MODES[tl.mode].label+'</b></span><span>Target <b>'+targetFor(UI.date)+' min</b></span>' +
+      (tl.deload?'<span><b style="color:#818cf8">Deload week</b></span>':'')+'</div>' +
+      '<div class="nextrow" style="grid-template-columns:1fr">' +
+        nextCard(b1, 1) + nextCard(b2, 2) +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ---------- timeline row ---------- */
+function timelineRow(b, date, tl){
+  const isActive = !!b.active;
+  const msr = b.msKey && S.days[date] && S.days[date].ms ? S.days[date].ms[b.msKey] : null;
+  const st = msr ? msr.status : '';
+  const expanded = UI.expanded === b.uid;
+  const done = isBlockDone(date, b, tl);
+
+  const mrec = readMs(date, b);
+  const st2 = mrec ? (mrec.status || '') : '';
+  let chip = '';
+  if(b.m === 0) chip = '<span class="tag" data-chip="'+esc(b.uid)+'">SKIPPED</span>';
+  else if(st2 === 'hit') chip = '<span class="tag hit" data-chip="'+esc(b.uid)+'">HIT</span>';
+  else if(st2 === 'miss') chip = '<span class="tag miss" data-chip="'+esc(b.uid)+'">MISS</span>';
+  else if(done) chip = '<span class="tag" data-chip="'+esc(b.uid)+'">DONE</span>';
+  else if(b.isStudy) chip = '<span class="tag" data-chip="'+esc(b.uid)+'">—</span>';
+
+  const typeLbl = '<span class="tl-type">'+esc(b.ty)+'</span>';
+
+  let expand = '';
+  if(expanded){
+    const key = b.msKey;
+    const row = key ? MS_ROWS.find(r => r.k === key) : null;
+    const fixed = row && row.fixed;
+    const tgtId = key || b.uid;
+    const tgtKind = key ? 'row' : 'block';
+    const cur = mrec || { text:'', evidence:'', status:'' };
+    expand =
+      '<div class="tl-expand">' +
+        '<div class="row"><span class="k">Milestone</span><div>' +
+          (fixed
+            ? '<input class="input" value="'+esc(row.fixed)+'" disabled aria-label="Fixed milestone text">' +
+              '<div class="tiny faint" style="margin-top:5px">🔒 Fixed text — this block never changes.</div>'
+            : '<input class="input" data-mst="'+esc(tgtId)+'" data-mstk="'+tgtKind+'" data-field="text" placeholder="Checkable, observable, binary — could a stranger judge it?" value="'+esc(cur.text)+'">') +
+        '</div></div>' +
+        '<div class="row"><span class="k">Evidence</span><div>' +
+          '<input class="input mono" data-mst="'+esc(tgtId)+'" data-mstk="'+tgtKind+'" data-field="evidence" placeholder="Page, file or line that proves it" value="'+esc(cur.evidence)+'">' +
+        '</div></div>' +
+        '<div class="row"><span class="k">Result</span><div>' +
+          '<div class="hm" data-hmgroup="'+esc(tgtId)+'" data-hmkind="'+tgtKind+'">' +
+            '<button type="button" data-hmt="'+esc(tgtId)+'" data-hmkind="'+tgtKind+'" data-v="hit" class="'+(st2==='hit'?'on':'')+'">HIT</button>' +
+            '<button type="button" data-hmt="'+esc(tgtId)+'" data-hmkind="'+tgtKind+'" data-v="miss" class="'+(st2==='miss'?'on':'')+'">MISS</button>' +
+            '<button type="button" data-hmt="'+esc(tgtId)+'" data-hmkind="'+tgtKind+'" data-v="none" class="'+(!st2?'on':'')+'">CLEAR</button>' +
+          '</div>' +
+        '</div></div>' +
+        '<div class="row"><span class="k">Mark done</span><div>' +
+          '<label class="switch"><input type="checkbox" data-blockdone="'+esc(b.uid)+'"'+(done?' checked':'')+'><span class="track"><span class="knob"></span></span>' +
+          '<span class="sw-label">Count this block towards study minutes</span></label>' +
+        '</div></div>' +
+      '</div>';
+  }
+
+  return '<div class="tl-row'+(isActive?' is-active':'')+(b.m===0?' is-skipped':'')+'">' +
+    '<div class="tl-time"><b>'+fmtHM12(b.s)+'</b><span'+(b.m===0?' style="opacity:.5"':'')+'>'+(b.m===0?'skipped':fmtDurShort(b.m))+'</span></div>' +
+    '<div class="tl-body" style="--cat:'+b.color+'">' +
+      '<div class="tl-main">' +
+        '<button type="button" class="tl-name" data-expand="'+esc(b.uid)+'" aria-expanded="'+expanded+'" style="background:none;border:0;padding:0;cursor:pointer;color:inherit;text-align:left;font-weight:600;font-size:13.5px">'+
+          (expanded?'▾ ':'▸ ')+esc(b.n)+'</button>' +
+        typeLbl +
+        '<span class="tl-sub">'+esc(b.d)+'</span>' +
+        '<span class="tl-meta">'+(isActive?'<span class="tag active">NOW</span>':'')+chip+'</span>' +
+      '</div>' +
+      expand +
+    '</div>' +
+  '</div>';
+}
+
+/* ---------- live refresh (clock) ---------- */
+function refreshNow(){
+  if(UI.page !== 'today' || UI.date !== todayISO()) return;
+  const tl = timeline(UI.date);
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes();
+  let idx = -1;
+  tl.blocks.forEach((b,i) => {
+    if(nowMin >= b.start && nowMin < b.end) idx = i;
+    else if(b.end > 1440 && nowMin < b.end - 1440) idx = i;
+  });
+  const bar = $('#nowBar'); if(!bar) return;
+  if(idx === -1){ bar.style.width = '0%'; return; }
+  const b = tl.blocks[idx];
+  const elapsed = nowMin >= b.start ? nowMin - b.start : nowMin + 1440 - b.start;
+  const remain = Math.max(0, b.m - elapsed);
+  const pct = b.m ? clamp(elapsed/b.m*100,0,100) : 0;
+  bar.style.width = pct.toFixed(1)+'%';
+  setText('#nowName', b.n);
+  setText('#nowDesc', b.d);
+  setText('#nowRemain', fmtDurShort(remain));
+  setText('#nowElapsed', fmtDurShort(elapsed));
+  setText('#nowPct', pct.toFixed(0)+'%');
+  setText('#nowEnd', fmtHM12(fmtHM(b.end>1440? b.end-1440 : b.end)));
+}
+function setText(sel, txt){ const el = $(sel); if(el && el.textContent !== txt) el.textContent = txt; }
+/* ============================================================
+   Page — Milestone Card
+   ============================================================ */
+function renderMilestone(){
+  const date = UI.date;
+  const rec = dayRec(date);
+  const rows = MS_ROWS.map(r => {
+    const m = msRec(date, r.k);
+    const st = m.status || '';
+    return '<div class="card-row">' +
+      '<div class="rk" style="--cat:'+r.color+'"><i></i>'+esc(r.name)+
+        '<span class="rname">'+esc(r.cat==='fom'?'FOM':r.cat==='phy'?'Physics':r.cat==='chem'?'Chemistry':r.cat==='cseng'?'CS + English':'Revision')+'</span></div>' +
+      '<div>' +
+        (r.fixed
+          ? '<input class="input" value="'+esc(r.fixed)+'" disabled aria-label="FOM-4 fixed milestone text">' +
+            '<div class="fixed">🔒 Always the same — every flag coded, caused, corrected; tally written.</div>'
+          : '<input class="input" data-ms="'+r.k+'" data-field="text" placeholder="Checkable, observable, binary" value="'+esc(m.text)+'">') +
+      '</div>' +
+      '<div><input class="input mono" data-ms="'+r.k+'" data-field="evidence" placeholder="Page / file that proves it" value="'+esc(m.evidence)+'"></div>' +
+      '<div><div class="hm" data-hmgroup="'+r.k+'" style="width:100%">' +
+        '<button type="button" data-hitmiss="'+r.k+'" data-v="hit" class="'+(st==='hit'?'on':'')+'" style="flex:1">HIT</button>' +
+        '<button type="button" data-hitmiss="'+r.k+'" data-v="miss" class="'+(st==='miss'?'on':'')+'" style="flex:1">MISS</button>' +
+        '<button type="button" data-hitmiss="'+r.k+'" data-v="none" class="'+(!st?'on':'')+'" style="flex:1">CLEAR</button>' +
+      '</div></div>' +
+    '</div>';
+  }).join('');
+
+  const footer = rec.msFooter || { unfinished:'', hardest:'' };
+
+  /* 7-day dot strip: the seven days ending on the selected date */
+  const strip = stripHTML(date);
+
+  const card = dayRec(date);
+  const written = MS_ROWS.filter(r => (card.ms[r.k] && (card.ms[r.k].text || card.ms[r.k].status)) ).length;
+
+  return '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px">' +
+      dateNavHTML(date) +
+      '<div class="pill" style="background:rgba(245,181,68,.12);color:#f5b544;border-color:rgba(245,181,68,.3)"><i class="dot"></i>'+WD_LONG[weekdayOf(date)]+'</div>' +
+      '<div class="pill" style="background:#121821;color:#8b98ab;border-color:#232c3a">'+written+' / 8 rows filled</div>' +
+      '<span style="flex:1"></span>' +
+      '<div class="kbdhint"><span class="kbd">H</span> hits the row · <span class="kbd">Esc</span> clears an open field</div>' +
+    '</div>' +
+
+    '<div class="card" style="margin-bottom:16px">' +
+      '<div class="card-head">' +
+        '<h2>Milestone Card</h2>' +
+        '<span class="sub">'+fmtLong(date)+'</span>' +
+        '<span class="spacer"></span>' +
+        '<span class="sub">Written the night before? A milestone that wasn’t written doesn’t count.</span>' +
+      '</div>' +
+      '<div class="grid" style="grid-template-columns:150px minmax(0,1fr) minmax(0,1fr) 176px;gap:0;padding:0 18px 0 0;border-bottom:1px solid var(--border-soft)">' +
+        '<div style="padding:10px 16px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#5d6b7f;font-weight:700">Block</div>' +
+        '<div style="padding:10px 14px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#5d6b7f;font-weight:700">Milestone — checkable, observable, binary</div>' +
+        '<div style="padding:10px 14px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#5d6b7f;font-weight:700">Evidence</div>' +
+        '<div style="padding:10px 0;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#5d6b7f;font-weight:700;text-align:center">HIT / MISS</div>' +
+      '</div>' +
+      rows +
+      '<div class="card-row" style="grid-template-columns:150px minmax(0,1fr) minmax(0,1fr) 176px;background:#121821">' +
+        '<div class="rk" style="--cat:#5d6b7f"><i></i>Footer<span class="rname">ends the card</span></div>' +
+        '<div><label class="fl" for="msUnfin">Unfinished</label><input class="input" id="msUnfin" data-msfooter="unfinished" placeholder="What did not get done?" value="'+esc(footer.unfinished)+'"></div>' +
+        '<div><label class="fl" for="msHard">Hardest ten minutes</label><input class="input" id="msHard" data-msfooter="hardest" placeholder="The ten minutes that hurt" value="'+esc(footer.hardest)+'"></div>' +
+        '<div class="center" style="padding-top:20px"><span class="tag">'+MS_ROWS.length+' rows</span></div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card" style="margin-bottom:16px">' +
+      '<div class="card-head"><h2>Last 7 days — HIT / MISS</h2><span class="sub">One dot per milestone row</span></div>' +
+      '<div class="card-pad"><div class="strip" id="stripHost">'+strip+'</div></div>' +
+    '</div>' +
+
+    '<div class="note">' +
+      '<h4>Three questions that make a card good</h4>' +
+      '<ul>' +
+        '<li>Could a stranger judge this from my page? If not, rewrite it.</li>' +
+        '<li>Can it be ticked or unticked — no “nearly”? If not, rewrite it.</li>' +
+        '<li>Does it fit inside the block? A 90-minute block holds one big result or a couple of small ones, never a whole chapter.</li>' +
+      '</ul>' +
+    '</div>';
+}
+
+/* ---------- 7-day HIT/MISS dot strip ---------- */
+function stripHTML(date){
+  const stripDays = [];
+  for(let i=6;i>=0;i--) stripDays.push(addDays(date, -i));
+  return stripDays.map(d => {
+    const stats = msStats(d);
+    const dots = MS_ROWS.map(r => {
+      const m = (S.days[d] && S.days[d].ms && S.days[d].ms[r.k]) || null;
+      const cls = m && m.status === 'hit' ? 'hit' : (m && m.status === 'miss' ? 'miss' : 'none');
+      const tip = r.name + ': ' + (m && m.status ? m.status.toUpperCase() : 'not marked');
+      return '<i class="sd-dot '+cls+'" title="'+esc(d+' — '+tip)+'"></i>';
+    }).join('');
+    return '<div class="strip-day">' +
+      '<div class="sd-h"><span class="sd-d">'+fmtDate(d,{day:'numeric',month:'short'})+'</span><span class="sd-w">'+WD_SHORT[weekdayOf(d)]+'</span></div>' +
+      '<div class="strip-dots">'+dots+'</div>' +
+      '<div class="sd-f">'+stats.hit+'/'+stats.total+' hit</div>' +
+    '</div>';
+  }).join('');
+}
+
+/* ============================================================
+   Page — Error Log
+   ============================================================ */
+function renderErrors(){
+  const tabs = '<div class="tabs" role="tablist" style="margin-bottom:16px">' +
+    '<button role="tab" data-tab="tally" class="'+(UI.tab==='tally'?'on':'')+'" aria-selected="'+(UI.tab==='tally')+'">FOM-4 tally · 14 days</button>' +
+    '<button role="tab" data-tab="entries" class="'+(UI.tab==='entries'?'on':'')+'" aria-selected="'+(UI.tab==='entries')+'">Error entries ('+S.errors.length+')</button>' +
+  '</div>';
+  return tabs + (UI.tab === 'tally' ? tallyTab() : entriesTab());
+}
+
+function tallyTab(){
+  const dates = [];
+  for(let i=13;i>=0;i--) dates.push(addDays(todayISO(), -i));
+  const rows = dates.map(d => {
+    const rec = S.days[d] || { fom4:{ flagged:0, corrected:0, doubt:0 } };
+    const f = rec.fom4 || { flagged:0, corrected:0, doubt:0 };
+    const bal = (f.corrected + f.doubt) === f.flagged;
+    return '<tr>' +
+      '<td class="nowrap"><span class="mono">'+fmtDate(d,{day:'numeric',month:'short'})+'</span> <span class="faint tiny">'+WD_SHORT[weekdayOf(d)]+'</span></td>' +
+      '<td><input class="cell" type="number" min="0" value="'+(f.flagged||0)+'" data-tally="'+d+'" data-field="flagged"></td>' +
+      '<td><input class="cell" type="number" min="0" value="'+(f.corrected||0)+'" data-tally="'+d+'" data-field="corrected"></td>' +
+      '<td><input class="cell" type="number" min="0" value="'+(f.doubt||0)+'" data-tally="'+d+'" data-field="doubt"></td>' +
+      '<td class="num">'+(f.flagged||0)+'</td>' +
+      '<td>'+(f.flagged ? (bal ? '<span class="tag hit">balanced</span>' : '<span class="tag miss">'+(f.flagged-(f.corrected+f.doubt))+' open</span>') : '<span class="tag">—</span>')+'</td>' +
+    '</tr>';
+  }).join('');
+
+  const chartRows = dates.map(d => {
+    const rec = S.days[d] || { fom4:{} };
+    const f = rec.fom4 || {};
+    return { label: fmtDate(d,{day:'numeric',month:'short'}), x: String(parseISO(d).getDate()), a: f.flagged||0, b: f.corrected||0, color:'#f5b544', dim:(f.flagged||0)===0 };
+  });
+
+  const totalF = chartRows.reduce((s,r)=>s+r.a,0);
+  const totalC = chartRows.reduce((s,r)=>s+r.b,0);
+
+  return '<div class="card" style="margin-bottom:16px">' +
+      '<div class="card-head"><h2>FOM-4 flags per day</h2><span class="sub">solid = flagged · faded = corrected</span><span class="spacer"></span>' +
+      '<span class="sub">'+totalF+' flagged · '+totalC+' corrected over 14 days</span></div>' +
+      '<div class="card-pad chart-wrap"><div id="tallyChart">' + svgBarChart(chartRows, { aria:'FOM-4 flags per day for the last 14 days', height:200 }) +
+        (totalF === 0 ? '<div class="tiny faint center" style="margin-top:10px">No flags logged in the last 14 days — every mistake you find in FOM-4 goes in the tally below.</div>' : '') + '</div>' +
+        '<div class="legend">' +
+          '<div class="li"><i class="sw" style="background:#f5b544"></i>Flagged</div>' +
+          '<div class="li"><i class="sw" style="background:#f5b544;opacity:.35"></i>Corrected</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-head"><h2>FOM-4 tally — last 14 days</h2><span class="sub">Editable inline · auto-saved</span></div>' +
+      '<div class="tbl-wrap"><table class="tbl">' +
+        '<thead><tr><th>Date</th><th>Flagged</th><th>Corrected</th><th>Doubt log</th><th class="num">Total</th><th>Balance</th></tr></thead>' +
+        '<tbody>'+rows+'</tbody>' +
+      '</table></div>' +
+    '</div>';
+}
+
+function entriesTab(){
+  const list = S.errors.slice().sort((a,b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  const body = list.length ? list.map(e => {
+    const cd = CODES.find(c => c.c === e.code);
+    return '<tr>' +
+      '<td class="nowrap mono tiny">'+esc(e.date||'—')+'</td>' +
+      '<td class="nowrap">'+esc(e.subject||'—')+'</td>' +
+      '<td class="tiny">'+esc(e.ref||'—')+'</td>' +
+      '<td><span class="tag" style="'+(e.mark==='X'?'background:rgba(248,113,113,.12);color:#f87171;border-color:rgba(248,113,113,.3)':'background:rgba(251,191,36,.12);color:#fbbf24;border-color:rgba(251,191,36,.3)')+'">'+esc(e.mark||'—')+'</span></td>' +
+      '<td><span class="tag" title="'+esc(cd?cd.t+' — '+cd.f:'')+'">'+esc(e.code||'—')+'</span></td>' +
+      '<td class="tiny" style="max-width:240px">'+esc(e.cause||'—')+'</td>' +
+      '<td class="tiny" style="max-width:240px">'+esc(e.fix||'—')+'</td>' +
+      '<td class="nowrap mono tiny">'+esc(e.resolveDate||'—')+'</td>' +
+      '<td><span class="tag" style="'+(e.result==='X'?'background:rgba(248,113,113,.12);color:#f87171;border-color:rgba(248,113,113,.3)':e.result==='H'?'background:rgba(251,191,36,.12);color:#fbbf24;border-color:rgba(251,191,36,.3)':'background:rgba(52,211,153,.12);color:#34d399;border-color:rgba(52,211,153,.3)')+'">'+esc(e.result||'—')+'</span></td>' +
+      '<td class="nowrap"><button class="btn sm ghost" data-edit-error="'+esc(e.id)+'">Edit</button> <button class="btn sm ghost danger" data-del-error="'+esc(e.id)+'" aria-label="Delete entry">✕</button></td>' +
+    '</tr>';
+  }).join('') : '<tr><td colspan="10">'+emptyState('◎','No error entries yet. Add the first one from FOM-4 — every flag, coded.')+'</td></tr>';
+
+  const stats = weekErrorStats(weekStart(todayISO()));
+  const codeBars = CODES.map(c => ({ c:c, n: stats.codes[c.c]||0 })).filter(x => x.n>0).sort((a,b)=>b.n-a.n);
+
+  return '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px">' +
+      '<button class="btn primary" data-open-error>+ Add error entry</button>' +
+      '<span class="pill" style="background:#121821;color:#8b98ab;border-color:#232c3a">'+S.errors.length+' entries</span>' +
+      '<div class="pill" style="background:rgba(251,191,36,.12);color:#fbbf24;border-color:rgba(251,191,36,.3)">'+stats.h+' H marks</div>' +
+      '<div class="pill" style="background:rgba(248,113,113,.12);color:#f87171;border-color:rgba(248,113,113,.3)">'+stats.x+' X marks</div>' +
+      (stats.top ? '<div class="pill" style="background:rgba(129,140,248,.12);color:#818cf8;border-color:rgba(129,140,248,.3)">Top code '+stats.top+' · '+stats.topN+'</div>' : '') +
+    '</div>' +
+    (codeBars.length ? '<div class="card" style="margin-bottom:16px"><div class="card-head"><h2>Error codes this week</h2></div><div class="card-pad chart-wrap">' +
+        svgBarChart(codeBars.map(b => ({ label:b.c.t, x:b.c, a:b.n, color:'#818cf8' })), { aria:'Error code frequency this week', height:140 }) +
+      '</div></div>' : '') +
+    '<div class="card"><div class="tbl-wrap"><table class="tbl">' +
+      '<thead><tr><th>Date</th><th>Subject</th><th>Problem / source</th><th>Mark</th><th>Code</th><th>What went wrong</th><th>Fix</th><th>Re-solved on</th><th>Result</th><th></th></tr></thead>' +
+      '<tbody>'+body+'</tbody></table></div></div>' +
+    '<div class="note" style="margin-top:16px"><h4>Logging rules</h4><ul>' +
+      '<li>Log every mistake <b>the same day</b> — FOM mistakes in FOM-4, Physics and Chemistry in their own close-outs, CS in the bug log.</li>' +
+      '<li>Re-solve cold within 3–7 days. A problem that gets a second H goes to the Doubt Log.</li>' +
+      '<li>Once a month, count the codes — the most frequent one is next month’s improvement target.</li>' +
+    '</ul></div>';
+}
+
+/* ---------- error entry modal ---------- */
+function errorModalHTML(){
+  const e = UI.editingError ? S.errors.find(x => x.id === UI.editingError) : null;
+  const v = e || { date: UI.date, subject:'FOM', ref:'', mark:'X', code:'C', cause:'', fix:'', resolveDate:'', result:'' };
+  const codeOpts = CODES.map(c => '<option value="'+c.c+'"'+(v.code===c.c?' selected':'')+'>'+c.c+' — '+esc(c.t)+'</option>').join('');
+  const subjOpts = SUBJECTS.map(s => '<option value="'+esc(s)+'"'+(v.subject===s?' selected':'')+'>'+esc(s)+'</option>').join('');
+  return '<div class="modal-back" data-modal-back>' +
+    '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="errModalTitle">' +
+      '<div class="modal-h"><h3 id="errModalTitle">'+(e?'Edit error entry':'Add error entry')+'</h3><span class="spacer"></span>' +
+        '<button class="btn sm ghost" data-close-modal aria-label="Close">✕</button></div>' +
+      '<div class="modal-b">' +
+        '<div class="grid2">' +
+          '<div class="field"><label class="fl" for="eDate">Date</label><input class="input mono" id="eDate" type="date" name="date" value="'+esc(v.date||'')+'"></div>' +
+          '<div class="field"><label class="fl" for="eSubj">Subject</label><select class="select" id="eSubj" name="subject">'+subjOpts+'</select></div>' +
+        '</div>' +
+        '<div class="field"><label class="fl" for="eRef">Problem / source reference</label><input class="input mono" id="eRef" name="ref" placeholder="e.g. FOM §4.2 Q7 / Ex. 3.14(b)" value="'+esc(v.ref)+'"></div>' +
+        '<div class="grid2">' +
+          '<div class="field"><label class="fl" for="eMark">Mark</label><select class="select" id="eMark" name="mark"><option value="H"'+(v.mark==='H'?' selected':'')+'>H — solved with a hint</option><option value="X"'+(v.mark==='X'?' selected':'')+'>X — not solved</option></select></div>' +
+          '<div class="field"><label class="fl" for="eCode">Error code</label><select class="select" id="eCode" name="code">'+codeOpts+'</select></div>' +
+        '</div>' +
+        '<div class="field"><label class="fl" for="eCause">What went wrong (one line)</label><textarea class="textarea" id="eCause" name="cause" placeholder="One line. Name the exact failure.">'+esc(v.cause)+'</textarea></div>' +
+        '<div class="field"><label class="fl" for="eFix">Fix (one line)</label><textarea class="textarea" id="eFix" name="fix" placeholder="The specific correction, not “be more careful”.">'+esc(v.fix)+'</textarea></div>' +
+        '<div class="grid2">' +
+          '<div class="field"><label class="fl" for="eResolve">Re-solve on</label><input class="input mono" id="eResolve" type="date" name="resolveDate" value="'+esc(v.resolveDate||'')+'"></div>' +
+          '<div class="field"><label class="fl" for="eResult">Result after re-solve</label><select class="select" id="eResult" name="result">' +
+            '<option value=""'+(v.result===''?' selected':'')+'>—</option>' +
+            '<option value="C"'+(v.result==='C'?' selected':'')+'>C — clean solve</option>' +
+            '<option value="H"'+(v.result==='H'?' selected':'')+'>H — needed a hint</option>' +
+            '<option value="X"'+(v.result==='X'?' selected':'')+'>X — still not solved</option>' +
+          '</select></div>' +
+        '</div>' +
+        '<div class="note"><h4>Codes</h4><ul>' +
+          '<li><b>C</b> concept gap · <b>T</b> technique not recalled · <b>A</b> algebra/arithmetic · <b>P</b> proof gap</li>' +
+          '<li><b>M</b> misread the question · <b>S</b> speed / time management · <b>D</b> didn’t try / gave up early</li>' +
+        '</ul></div>' +
+      '</div>' +
+      '<div class="modal-f">' +
+        '<button class="btn ghost" data-close-modal>Cancel</button>' +
+        '<button class="btn primary" data-save-error>'+(e?'Save changes':'Add entry')+'</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+/* ============================================================
+   Page — Energy & Sleep
+   ============================================================ */
+function renderEnergy(){
+  const date = UI.date;
+  const rec = peekDay(date);
+  const e = rec.energy || {};
+  const week = weekDays(date);
+  const avg = weeklyEnergy(date);
+  const zone = energyZone(avg);
+
+  const metricCards = METRICS.map(m => {
+    const v = e[m.k];
+    return '<div class="card widget">' +
+      '<h3 style="margin-bottom:10px">'+esc(m.label)+'</h3>' +
+      segHTML('en-'+m.k+'-'+date, v, '#818cf8') +
+      '<div class="tiny faint" style="margin-top:9px">1 = bad · 5 = great'+(v ? ' · <b style="color:#8b98ab">'+v+'/5</b>' : '')+'</div>' +
+    '</div>';
+  }).join('');
+
+  const sleepCards = SLEEPINESS_SLOTS.map(slot => {
+    const v = (rec.sleepiness||{})[slot];
+    const label = { '11:05':'Mid-morning check', '15:25':'Post-nap check', '16:45':'Pre-workout check' }[slot];
+    return '<div class="card widget">' +
+      '<h3 style="margin-bottom:4px">'+slot+'</h3>' +
+      '<div class="tiny faint" style="margin-bottom:10px">'+label+'</div>' +
+      segHTML('sl-'+slot.replace(':','')+'-'+date, v, '#4fd1c5') +
+      '<div class="tiny faint" style="margin-top:9px">1 = alert · 5 = struggling</div>' +
+    '</div>';
+  }).join('');
+
+  /* week chart data */
+  const series = METRICS.map(m => ({
+    label: m.label,
+    color: { sleepQuality:'#818cf8', energy:'#34d399', mood:'#fbbf24', focus:'#60a5fa', motivation:'#fb7185' }[m.k],
+    values: week.map(d => {
+      const ev = (S.days[d] && S.days[d].energy) || {};
+      const val = ev[m.k];
+      return typeof val === 'number' ? val : null;
+    })
+  }));
+  const weekAvgSeries = {
+    label:'Daily average', color:'#f5b544',
+    values: week.map(d => {
+      const ev = (S.days[d] && S.days[d].energy) || {};
+      const vals = METRICS.map(m => ev[m.k]).filter(v => typeof v === 'number');
+      return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+    })
+  };
+
+  const scored = week.reduce((n,d) => {
+    const ev = (S.days[d] && S.days[d].energy) || {};
+    return n + METRICS.filter(m => typeof ev[m.k] === 'number').length;
+  }, 0);
+  const zoneCard = zone ?
+    '<div class="zone '+zone.z+'">' +
+      '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
+        '<div><div class="zv">'+avg.toFixed(2)+'</div><div class="tiny faint">average of '+scored+' of 35 scores</div></div>' +
+        '<div style="flex:1;min-width:180px">' +
+          '<div style="font-size:13px;font-weight:600;margin-bottom:4px">'+zone.label+' zone</div>' +
+          '<div class="tiny muted">'+esc(zone.action)+'</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' : '<div class="zone"><div class="tiny muted">Log the five scores for this week to see the Energy Dashboard zone.</div></div>';
+
+  const overrideNotes = [];
+  if(avg !== null && avg < 3.5) overrideNotes.push('Any single metric averaging ≤ 2.0 for the week makes it at least Yellow.');
+  const lowDays = week.filter(d => {
+    const ev = (S.days[d] && S.days[d].energy) || {};
+    const vals = METRICS.map(m => ev[m.k]).filter(v => typeof v === 'number');
+    return vals.length >= 3 && vals.filter(v => v <= 2).length >= 3;
+  });
+  if(lowDays.length) overrideNotes.push(lowDays.length+' day'+(lowDays.length===1?'':'s')+' with three or more scores of 2 or lower → the next day is Yellow.');
+  const sleepHigh = week.filter(d => {
+    const vals = SLEEPINESS_SLOTS.map(s => ((S.days[d] && S.days[d].sleepiness) || {})[s]).filter(v => typeof v === 'number');
+    return vals.length && vals.reduce((a,b)=>a+b,0)/vals.length >= 3.5;
+  });
+  if(sleepHigh.length >= 5) overrideNotes.push('Average sleepiness ≥ 3.5 on '+sleepHigh.length+' days → add sleep (lights-out 22:15) before touching any block.');
+
+  return '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px">' +
+      dateNavHTML(date) +
+      '<div class="pill" style="background:#121821;color:#8b98ab;border-color:#232c3a">Week of '+weekLabel(date)+'</div>' +
+      '<span style="flex:1"></span>' +
+      '<div class="kbdhint">Scores 1–5 · auto-saved as you type</div>' +
+    '</div>' +
+
+    '<div class="grid g3" style="margin-bottom:16px">' + metricCards + '</div>' +
+
+    '<div class="card" style="margin-bottom:16px">' +
+      '<div class="card-head"><h2>Recovery</h2><span class="sub">Nap 1 and the workout are the two levers you control</span></div>' +
+      '<div class="card-pad" style="display:flex;gap:26px;flex-wrap:wrap;align-items:center">' +
+        switchHTML('nap-'+date, rec.nap, 'Nap 1 (30 min)') +
+        switchHTML('workout-'+date, rec.workout, 'Workout done') +
+        '<div style="flex:1;min-width:200px">' +
+          '<label class="fl" for="wtype-'+date+'">Workout type</label>' +
+          '<input class="input" id="wtype-'+date+'" data-workouttype placeholder="Push / pull / legs / walk / mobility" value="'+esc(rec.workoutType||'')+'">' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card" style="margin-bottom:16px">' +
+      '<div class="card-head"><h2>Sleepiness checks</h2><span class="sub">11:05 · 15:25 · 16:45 — measure before guessing</span></div>' +
+      '<div class="card-pad"><div class="grid g3">'+sleepCards+'</div></div>' +
+    '</div>' +
+
+    '<div class="grid g2" style="align-items:start">' +
+      '<div class="card">' +
+        '<div class="card-head"><h2>Weekly energy chart</h2><span class="sub">'+weekLabel(date)+'</span></div>' +
+        '<div class="card-pad chart-wrap"><div id="chartHost">' +
+          svgLineChart(week, series.concat([weekAvgSeries]), { aria:'Weekly energy, mood, focus, motivation and sleep quality', height:250 }) +
+          '<div class="legend">' + series.concat([weekAvgSeries]).map(s =>
+            '<div class="li"><i class="sw line" style="background:'+s.color+'"></i>'+esc(s.label)+'</div>').join('') +
+          '</div>' +
+        '</div></div>' +
+      '</div>' +
+      '<div class="grid" style="gap:16px">' +
+        '<div class="card"><div class="card-head"><h2>Energy Dashboard</h2><span class="sub">Sunday, 18:45</span></div>' +
+          '<div class="card-pad"><div id="zoneHost">'+zoneCard+'</div>' +
+            (overrideNotes.length ? '<div class="hr"></div><div class="tiny muted" style="line-height:1.6">'+overrideNotes.map(n=>'• '+esc(n)).join('<br>')+'</div>' : '')+
+          '</div>' +
+        '</div>' +
+        '<div class="note">' +
+          '<h4>Zone rules</h4>' +
+          '<ul>' +
+            '<li>≥ 3.5 → <b style="color:#34d399">Green</b> — normal week, keep the full load.</li>' +
+            '<li>2.5 – 3.4 → <b style="color:#fbbf24">Yellow</b> — step down to the Light load; recheck on Wednesday.</li>' +
+            '<li>&lt; 2.5 → <b style="color:#f87171">Red</b> — start a deload week now.</li>' +
+          '</ul>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+}
+
+/* ============================================================
+   Page — Weekly Review
+   ============================================================ */
+function renderWeekly(){
+  const wk = weekStart(UI.date);
+  const key = wk;
+  const saved = S.weekly[key] || {};
+  const days = weekDays(wk);
+  const auto = weekAutoStats(wk);
+  const errs = weekErrorStats(wk);
+  const energy = weeklyEnergy(wk);
+  const zone = energyZone(energy);
+  const subj = saved.subjects || {};
+
+  const subjectRows = WR_SUBJECTS.map(s => {
+    const cur = subj[s] || { hit:'', total:'' };
+    return '<tr>' +
+      '<td class="nowrap"><span class="mono">'+esc(s)+'</span></td>' +
+      '<td><input class="cell" type="number" min="0" value="'+esc(cur.hit)+'" data-wr="'+esc(s)+'" data-field="hit" placeholder="0" style="width:72px"></td>' +
+      '<td><input class="cell" type="number" min="0" value="'+esc(cur.total)+'" data-wr="'+esc(s)+'" data-field="total" placeholder="0" style="width:72px"></td>' +
+      '<td class="tiny faint">'+esc((subj[s] && subj[s].hit && subj[s].total) ? (subj[s].hit/subj[s].total*100).toFixed(0)+'% hit rate' : '—')+'</td>' +
+    '</tr>';
+  }).join('');
+
+  const topCodeOpts = '<option value="">— auto —</option>' + CODES.map(c =>
+    '<option value="'+c.c+'"'+(saved.topCode===c.c?' selected':'')+'>'+c.c+' — '+esc(c.t)+' ('+(errs.codes[c.c]||0)+')</option>').join('');
+
+  return '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px">' +
+      '<button class="btn ghost" data-week-step="-1">‹ Prev week</button>' +
+      '<div class="pill" style="background:rgba(245,181,68,.12);color:#f5b544;border-color:rgba(245,181,68,.3)">Week of '+weekLabel(wk)+'</div>' +
+      '<button class="btn ghost" data-week-step="1">Next week ›</button>' +
+      '<span style="flex:1"></span>' +
+      (saved.savedAt ? '<span class="tiny faint">Saved '+new Date(saved.savedAt).toLocaleString()+'</span>' : '<span class="tiny faint">Not saved yet</span>') +
+      '<button class="btn primary" data-save-weekly>Save review</button>' +
+    '</div>' +
+
+    '<div class="grid g2" style="align-items:start;margin-bottom:16px">' +
+
+      '<div class="card">' +
+        '<div class="card-head"><h2>Milestone cards — HIT / total</h2><span class="sub">Per subject, this week</span></div>' +
+        '<div class="tbl-wrap"><table class="tbl">' +
+          '<thead><tr><th>Subject</th><th>HIT</th><th>Total</th><th></th></tr></thead>' +
+          '<tbody>'+subjectRows+'</tbody>' +
+        '</table></div>' +
+      '</div>' +
+
+      '<div class="grid" style="gap:16px">' +
+        '<div class="card">' +
+          '<div class="card-head"><h2>Auto-computed</h2><span class="sub">Pulled from the tracker</span></div>' +
+          '<div class="card-pad">' +
+            '<div class="kvline"><span class="k">Energy Dashboard average</span><span class="v" style="color:'+(zone?({green:'#34d399',yellow:'#fbbf24',red:'#f87171'})[zone.z]:'#8b98ab')+'">'+(energy===null?'—':energy.toFixed(2)+' · '+zone.label)+'</span></div>' +
+            '<div class="kvline"><span class="k">Most frequent error code</span><span class="v">'+(errs.top ? errs.top+' · '+errs.topN+' this week' : '—')+'</span></div>' +
+            '<div class="kvline"><span class="k">H marks / X marks (FOM)</span><span class="v">'+errs.h+' H · '+errs.x+' X</span></div>' +
+            '<div class="kvline"><span class="k">Nights below 7 h</span><span class="v" style="color:'+(auto.nightsUnder?'#fbbf24':'#34d399')+'">'+auto.nightsUnder+'</span></div>' +
+            '<div class="kvline"><span class="k">Workouts done</span><span class="v" style="color:'+(auto.workouts>=4?'#34d399':'#fbbf24')+'">'+auto.workouts+' <span class="faint tiny">target ≥ 4</span></span></div>' +
+            '<div class="kvline"><span class="k">FOM-4 tallies Mon–Fri</span><span class="v">'+auto.flagged+' flagged · '+auto.corrected+' corrected</span></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="card widget">' +
+          '<h3>Next week is a deload week?</h3>' +
+          switchHTML('wr-deload-'+key, !!saved.deload, 'Yes — deload week') +
+          '<div class="tiny faint" style="margin-top:8px">'+weekPlanNote(wk)+'</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="grid g2" style="align-items:start;margin-bottom:16px">' +
+      '<div class="card widget">' +
+        '<h3>One thing that worked</h3>' +
+        '<textarea class="textarea" data-wrtext="worked" placeholder="Name it precisely — it is what you repeat.">'+esc(saved.worked||'')+'</textarea>' +
+      '</div>' +
+      '<div class="card widget">' +
+        '<h3>One thing to change</h3>' +
+        '<textarea class="textarea" data-wrtext="change" placeholder="One change only. Not three.">'+esc(saved.change||'')+'</textarea>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="grid g2" style="align-items:start;margin-bottom:16px">' +
+      '<div class="card widget">' +
+        '<h3>Dial change for next week</h3>' +
+        '<textarea class="textarea" data-wrtext="dial" placeholder="One dial, or none. E.g. “move FOM-2 to 09:30”.">'+esc(saved.dial||'')+'</textarea>' +
+        '<div class="tiny faint" style="margin-top:8px">Change at most one dial per week.</div>' +
+      '</div>' +
+      '<div class="card widget">' +
+        '<h3>Top error code override</h3>' +
+        '<select class="select" data-wrselect="topCode" style="margin-bottom:12px">'+topCodeOpts+'</select>' +
+        '<h3 style="margin-top:4px">Helper sync</h3>' +
+        switchHTML('wr-helper-'+key, !!saved.helperSync, 'Sync done with helper') +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<div class="card-head"><h2>The week at a glance</h2><span class="sub">'+days[0]+' → '+days[6]+'</span></div>' +
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Day</th><th>Mode</th><th>Sleep</th><th>Study</th><th>Milestones</th><th>FOM-4 flags</th><th>Nap</th><th>Workout</th></tr></thead><tbody>' +
+        days.map(d => {
+          const rec = S.days[d] || {};
+          const mode = rec.mode || '—';
+          const h = sleepHours(d);
+          const st = studyMinutes(d);
+          const stats = msStats(d);
+          const f = rec.fom4 || {};
+          return '<tr>' +
+            '<td class="nowrap"><span class="mono">'+WD_SHORT[weekdayOf(d)]+'</span> <span class="tiny faint">'+parseISO(d).getDate()+'</span></td>' +
+            '<td>'+(mode==='—'?'<span class="tag">—</span>':'<span class="tag" style="color:'+(MODES[mode]?MODES[mode].color:'#8b98ab')+';border-color:'+(MODES[mode]?MODES[mode].color:'#8b98ab')+'55;background:transparent">'+MODES[mode].label+'</span>')+'</td>' +
+            '<td class="mono tiny">'+(h===null?'—':fmtDur(h*60))+'</td>' +
+            '<td class="mono tiny">'+st+' min</td>' +
+            '<td class="mono tiny">'+stats.hit+'/'+stats.total+'</td>' +
+            '<td class="mono tiny">'+(f.flagged||0)+'</td>' +
+            '<td>'+(rec.nap?'<span class="tag hit">✓</span>':'<span class="tag">—</span>')+'</td>' +
+            '<td>'+(rec.workout?'<span class="tag hit">✓</span>':'<span class="tag">—</span>')+'</td>' +
+          '</tr>';
+        }).join('') +
+      '</tbody></table></div>' +
+    '</div>';
+}
+/* ============================================================
+   Page — Modules
+   ============================================================ */
+function renderModules(){
+  const prog = moduleProgress();
+  let cur = currentModule(todayISO());
+  const preLaunch = !cur && todayISO() < planStart();
+  if(preLaunch) cur = MODULES[0];
+  const curTag = preLaunch ? 'FIRST' : 'CURRENT';
+  const byPart = {};
+  MODULES.forEach(m => { (byPart[m.p] = byPart[m.p] || []).push(m); });
+
+  const groups = ['A','B','C','D','E'].map(p => {
+    const list = byPart[p] || [];
+    let done = 0, tot = 0;
+    list.forEach(m => {
+      const rec = S.modules[m.id] || {};
+      MOD_CHECKS.forEach(c => { tot++; if(rec[c.k]) done++; });
+    });
+    const rows = list.map(m => {
+      const rec = S.modules[m.id] || {};
+      const mdone = MOD_CHECKS.filter(c => rec[c.k]).length;
+      const isCurrent = cur && cur.id === m.id;
+      const isDone = mdone === MOD_CHECKS.length;
+      const chks = MOD_CHECKS.map(c =>
+        '<label class="chk"><input type="checkbox" data-mod="'+m.id+'" data-check="'+c.k+'"'+(rec[c.k]?' checked':'')+'>' +
+        '<span class="box"></span><span class="cl">'+esc(c.l)+'</span>'+(c.m?'<span class="m">'+c.m+'</span>':'')+'</label>').join('');
+      return '<div class="mod'+(isCurrent?' current':'')+(isDone?' done':'')+'">' +
+        '<div class="mod-h">' +
+          '<span class="mod-code">'+esc(m.id)+'</span>' +
+          '<span class="mod-title">'+esc(m.t)+'</span>' +
+          (isCurrent ? '<span class="tag active">'+curTag+'</span>' : '') +
+          (isDone ? '<span class="tag hit">COMPLETE</span>' : '') +
+          '<span class="mod-win">'+esc(m.win)+' · '+m.w+' wk</span>' +
+        '</div>' +
+        '<div class="mod-checks">'+chks+'</div>' +
+      '</div>';
+    }).join('');
+    return '<div class="mod-group">' +
+      '<div class="mod-group-h"><h3>'+esc(MOD_PARTS[p])+'</h3>' +
+        '<span class="tag">'+list.length+' modules</span>' +
+        '<span class="spacer"></span>' +
+        '<span class="tiny faint mono">'+done+' / '+tot+' checks</span></div>' +
+      rows +
+    '</div>';
+  }).join('');
+
+  return '<div class="card" style="margin-bottom:18px">' +
+      '<div class="card-pad" style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">' +
+        '<div style="flex:1;min-width:220px">' +
+          '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">' +
+            '<b style="font-size:13px">Overall progress</b>' +
+            '<span class="mono tiny muted" id="modProg">'+prog.done+' / '+prog.total+' checks · '+prog.pct.toFixed(1)+'%</span>' +
+          '</div>' +
+          '<div class="bar"><i id="modProgBar" style="width:'+prog.pct.toFixed(1)+'%"></i></div>' +
+        '</div>' +
+        (cur ? '<div class="zone" style="flex:0 0 auto;min-width:210px;padding:10px 14px">' +
+          '<div class="tiny faint">'+(preLaunch?'First module':'Current module')+'</div>' +
+          '<div style="font-size:13px;font-weight:600;margin:3px 0">'+esc(cur.id)+' · '+esc(cur.t)+'</div>' +
+          '<div class="tiny muted">Window '+esc(cur.win)+'</div>' +
+        '</div>' : '') +
+      '</div>' +
+    '</div>' +
+    groups +
+    '<div class="note"><h4>How the module tracker works</h4><ul>' +
+      '<li>Tier I → Tier II → Tier III, then a mixed review, then the module test.</li>' +
+      '<li>Milestone attempts 1 / 2 / 3 — the second attempt is the one that teaches you.</li>' +
+      '<li>Reflection is the line you would write to a younger version of yourself.</li>' +
+      '<li>These are planned windows, not promises. Never close a gap by adding hours — trim the milestone or move the window.</li>' +
+    '</ul></div>';
+}
+
+/* ============================================================
+   Page — Settings
+   ============================================================ */
+function renderSettings(){
+  const s = S.settings;
+  const days = Object.keys(S.days).length;
+  const bytes = (() => { try{ return new Blob([JSON.stringify(S)]).size; }catch(e){ return 0; } })();
+
+  const kd = (s.keyDates || []).slice().sort((a,b) => (a.date < b.date ? -1 : 1)).map(k =>
+    '<tr>' +
+      '<td class="nowrap mono tiny">'+esc(k.date)+'</td>' +
+      '<td>'+esc(k.label)+'</td>' +
+      '<td><span class="tag">'+esc(k.type||'Event')+'</span></td>' +
+      '<td class="tiny faint">'+esc(relDay(k.date))+'</td>' +
+      '<td class="nowrap"><button class="btn sm ghost danger" data-del-key="'+esc(k.id)+'" aria-label="Remove">✕</button></td>' +
+    '</tr>').join('');
+
+  return '<div class="grid g2" style="align-items:start;margin-bottom:16px">' +
+
+    '<div class="card">' +
+      '<div class="card-head"><h2>Plan</h2><span class="sub">Drives week numbers and deload weeks</span></div>' +
+      '<div class="card-pad">' +
+        '<div class="field"><label class="fl" for="startDate">Plan start date</label>' +
+          '<input class="input mono" id="startDate" type="date" value="'+esc(s.startDate||DEFAULT_START)+'" data-settings="startDate"></div>' +
+        '<div class="kvline"><span class="k">Current week</span><span class="v">'+(planWeek(todayISO())>=1?'W'+planWeek(todayISO()):'pre-launch')+'</span></div>' +
+        '<div class="kvline"><span class="k">Next deload week</span><span class="v">W'+nextDeloadInfo(todayISO()).week+' · '+fmtDate(nextDeloadInfo(todayISO()).start,{day:'numeric',month:'short',year:'numeric'})+'</span></div>' +
+        '<div class="kvline"><span class="k">Deload cadence</span><span class="v">every 4th week</span></div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<div class="card-head"><h2>Data</h2><span class="sub">Everything lives in this browser</span></div>' +
+      '<div class="card-pad">' +
+        '<div class="kvline"><span class="k">Days tracked</span><span class="v">'+days+'</span></div>' +
+        '<div class="kvline"><span class="k">Error entries</span><span class="v">'+S.errors.length+'</span></div>' +
+        '<div class="kvline"><span class="k">Modules started</span><span class="v">'+Object.keys(S.modules).length+' / '+MODULES.length+'</span></div>' +
+        '<div class="kvline"><span class="k">Weekly reviews</span><span class="v">'+Object.keys(S.weekly).length+'</span></div>' +
+        '<div class="kvline"><span class="k">Storage size</span><span class="v">'+(bytes/1024).toFixed(1)+' KB</span></div>' +
+        '<div class="hr"></div>' +
+        '<div style="display:flex;gap:9px;flex-wrap:wrap">' +
+          '<button class="btn" data-export>↓ Export JSON</button>' +
+          '<button class="btn" data-import>↑ Import JSON</button>' +
+          '<button class="btn danger" data-reset>Reset all data</button>' +
+          '<input type="file" id="importFile" accept="application/json,.json" class="sr-only" tabindex="-1" aria-label="Choose a tracker JSON file to import">' +
+        '</div>' +
+        '<div class="tiny faint" style="margin-top:10px;line-height:1.6">Export writes a file you can keep. Import replaces the current data — export first if you want a backup. Everything stays local: no account, no server, works offline.</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>' +
+
+  '<div class="card" style="margin-bottom:16px">' +
+    '<div class="card-head"><h2>Key dates</h2><span class="sub">Exams, forms, college visits</span></div>' +
+    '<div class="card-pad" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;border-bottom:1px solid var(--border-soft)">' +
+      '<div style="flex:0 0 170px"><label class="fl" for="kdDate">Date</label><input class="input mono" id="kdDate" type="date" value="'+esc(todayISO())+'"></div>' +
+      '<div style="flex:1;min-width:220px"><label class="fl" for="kdLabel">What happens</label><input class="input" id="kdLabel" placeholder="e.g. ISI B.Stat registration closes"></div>' +
+      '<div style="flex:0 0 150px"><label class="fl" for="kdType">Type</label>' +
+        '<select class="select" id="kdType"><option>Exam</option><option>Form</option><option>College</option><option>Festival</option><option>Milestone</option><option>Deload</option><option>Plan</option></select></div>' +
+      '<button class="btn primary" data-add-key>Add date</button>' +
+    '</div>' +
+    '<div class="tbl-wrap"><table class="tbl">' +
+      '<thead><tr><th>Date</th><th>Event</th><th>Type</th><th>Countdown</th><th></th></tr></thead>' +
+      '<tbody>'+(kd || '<tr><td colspan="5">'+emptyState('◷','No key dates yet.')+'</td></tr>')+'</tbody>' +
+    '</table></div>' +
+  '</div>' +
+
+  '<div class="note"><h4>About this tracker</h4><ul>' +
+    '<li>Built for <b>FOM Daily Schedule v2.1 (Self-Study Edition)</b> — plan start Monday 9 November 2026, Maharashtra HSC 2028.</li>' +
+    '<li>All state is kept in <b>localStorage</b> under the key <code class="mono">'+STORE_KEY+'</code>. No network calls, no analytics.</li>' +
+    '<li>Charts are hand-rolled inline SVG — nothing to load, nothing to break.</li>' +
+    '<li>Keyboard: <span class="kbd">Tab</span> to move, <span class="kbd">Enter</span> to activate, <span class="kbd">Esc</span> to close a dialog.</li>' +
+  '</ul></div>';
+}
+/* ============================================================
+   Interaction layer — delegated events, modals, boot
+   ============================================================ */
+
+/* ---------- modal ---------- */
+function openModal(){
+  closeModal();
+  document.body.insertAdjacentHTML('beforeend', errorModalHTML());
+  const first = $('#eDate');
+  if(first) setTimeout(() => first.focus(), 30);
+}
+function closeModal(){
+  const m = $('.modal-back');
+  if(m) m.remove();
+  UI.editingError = null;
+}
+
+/* ---------- exports ---------- */
+function exportJSON(){
+  const payload = JSON.stringify(S, null, 2);
+  const blob = new Blob([payload], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'fom-tracker-' + todayISO() + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+function importJSON(file){
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const parsed = JSON.parse(reader.result);
+      if(!parsed || typeof parsed !== 'object') throw new Error('bad shape');
+      if(!confirm('Importing replaces every day, error entry, module and weekly review currently stored.\n\nContinue?')) return;
+      S = migrate(parsed);
+      save(true);
+      render(false);
+      toast('Data imported');
+    }catch(e){
+      alert('That file could not be read as tracker JSON.\n\n' + e.message);
+    }
+  };
+  reader.readAsText(file);
+}
+function resetAll(){
+  if(!confirm('Reset all data?\n\nEvery day, error entry, module check, weekly review and key date will be deleted. This cannot be undone.')) return;
+  localStorage.removeItem(STORE_KEY);
+  S = DEFAULT_STATE();
+  save(true);
+  render(false);
+  toast('All data reset');
+}
+let toastTimer = null;
+function toast(msg){
+  let el = $('#toast');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'toast';
+    el.style.cssText = 'position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(10px);background:#1a222d;border:1px solid #2f3a4c;color:#e7eef7;padding:9px 16px;border-radius:10px;font-size:12.5px;z-index:400;box-shadow:0 20px 50px -18px #000;opacity:0;transition:opacity .2s ease,transform .2s ease';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateX(-50%) translateY(0)'; });
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(-50%) translateY(10px)'; }, 1900);
+}
+
+/* ---------- targeted refresh helpers ---------- */
+function refreshSleepStats(){
+  const date = UI.date;
+  const rec = dayRec(date);
+  const sh = rec.sleep && typeof rec.sleep.hours === 'number' ? rec.sleep.hours : null;
+  const sleepCalc = $('#sleepCalc');
+  if(sleepCalc){
+    if(sh === null){
+      sleepCalc.innerHTML = '<div class="check-note">Enter lights-out and wake time to see the hours against the 7 h floor.</div>';
+    } else {
+      const diff = Math.round(sh*60) - 420;
+      sleepCalc.innerHTML =
+        '<div class="kvline"><span class="k">Slept</span><span class="v">'+fmtDur(sh*60)+'</span></div>' +
+        '<div class="check-note '+(diff>=0?'ok':(diff>=-60?'warn':'bad'))+'">'+
+          (diff>=0 ? 'Above the 7 h floor · '+diff+' min spare' : Math.abs(diff)+' min below the 7 h floor')+
+        '</div>';
+    }
+  }
+  const sv = $('#statSleep');
+  if(sv){
+    sv.textContent = sh === null ? '—' : fmtDur(sh*60);
+    const foot = $('#statSleepFoot');
+    if(foot){
+      foot.textContent = sh === null ? 'Not logged — floor is 7 h 00 m'
+        : (sh >= 7 ? 'Above the 7 h floor · '+(Math.round(sh*60)-420)+' min spare'
+                   : (Math.round(sh*60)-420)+' min below the 7 h floor');
+    }
+    const bar = sv.parentElement.querySelector('.bar > i');
+    if(bar) bar.style.width = (sh==null?0:clamp(sh/8*100,0,100)).toFixed(0)+'%';
+  }
+}
+function refreshFom4Balance(){
+  const rec = dayRec(UI.date);
+  const f = rec.fom4;
+  const host = $('#f4balance');
+  if(!host) return;
+  const bal = (f.corrected + f.doubt) === f.flagged && f.flagged > 0
+    ? '<div class="check-note ok">Balanced — every flag is accounted for.</div>'
+    : (f.flagged > (f.corrected+f.doubt)
+      ? '<div class="check-note bad">'+(f.flagged-(f.corrected+f.doubt))+' flag'+(f.flagged-(f.corrected+f.doubt)===1?'':'s')+' still unaccounted for.</div>'
+      : '<div class="check-note warn">More corrected + doubt than flagged — check the numbers.</div>');
+  host.innerHTML = bal;
+}
+function refreshMilestoneStats(){
+  const stats = msStats(UI.date);
+  const hit = $('#statMs');
+  if(hit){
+    hit.innerHTML = stats.hit + '<small> / ' + stats.total + '</small>';
+    const bar = $('#statMsBar'); if(bar) bar.style.width = (stats.total?stats.hit/stats.total*100:0).toFixed(0)+'%';
+    const foot = $('#statMsFoot');
+    if(foot) foot.textContent = stats.marked+' marked · '+stats.miss+' miss'+(stats.miss===1?'':'es')+' · '+stats.hit+' hit'+(stats.hit===1?'':'s');
+  }
+}
+function refreshMsChips(){
+  /* timeline chips + HIT/MISS button states */
+  const date = UI.date;
+  const tl = timeline(date);
+  $$('[data-chip]').forEach(el => {
+    const uidv = el.dataset.chip;
+    const b = tl.blocks.find(x => x.uid === uidv);
+    if(!b) return;
+    const m = readMs(date, b);
+    const st = m ? (m.status||'') : '';
+    el.className = 'tag' + (st==='hit'?' hit':st==='miss'?' miss':'');
+    el.textContent = st ? st.toUpperCase() : (isBlockDone(date, b, tl) ? 'DONE' : '—');
+  });
+  $$('[data-hmgroup]').forEach(g => {
+    const m = readMsTarget(date, g.dataset.hmgroup, g.dataset.hmkind || 'row');
+    const st = m ? (m.status||'') : '';
+    $$('button', g).forEach(btn => {
+      btn.classList.toggle('on', btn.dataset.v === (st || 'none'));
+    });
+  });
+  const strip = $('#stripHost');
+  if(strip) strip.innerHTML = stripHTML(date);
+}
+function refreshEnergyViews(){
+  const zoneHost = $('#zoneHost');
+  const chartHost = $('#chartHost');
+  const avg = weeklyEnergy(UI.date);
+  const zone = energyZone(avg);
+  if(zoneHost){
+    zoneHost.innerHTML = zone
+      ? '<div class="zone '+zone.z+'">' +
+          '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
+            '<div><div class="zv">'+avg.toFixed(2)+'</div><div class="tiny faint">weekly average of 35 scores</div></div>' +
+            '<div style="flex:1;min-width:180px"><div style="font-size:13px;font-weight:600;margin-bottom:4px">'+zone.label+' zone</div>' +
+            '<div class="tiny muted">'+esc(zone.action)+'</div></div>' +
+          '</div>' +
+        '</div>'
+      : '<div class="zone"><div class="tiny muted">Log the five scores for this week to see the Energy Dashboard zone.</div></div>';
+  }
+  if(chartHost){
+    const week = weekDays(UI.date);
+    const colors = { sleepQuality:'#818cf8', energy:'#34d399', mood:'#fbbf24', focus:'#60a5fa', motivation:'#fb7185' };
+    const series = METRICS.map(m => ({
+      label:m.label, color:colors[m.k],
+      values: week.map(d => { const ev=(S.days[d]&&S.days[d].energy)||{}; const val=ev[m.k]; return typeof val==='number'?val:null; })
+    }));
+    const avgSeries = { label:'Daily average', color:'#f5b544', values: week.map(d => {
+      const ev=(S.days[d]&&S.days[d].energy)||{};
+      const vals=METRICS.map(m=>ev[m.k]).filter(v=>typeof v==='number');
+      return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+    })};
+    chartHost.innerHTML = svgLineChart(week, series.concat([avgSeries]), { aria:'Weekly energy chart', height:250 }) +
+      '<div class="legend">'+series.concat([avgSeries]).map(s=>'<div class="li"><i class="sw line" style="background:'+s.color+'"></i>'+esc(s.label)+'</div>').join('')+'</div>';
+  }
+}
+function refreshModuleProgress(){
+  const prog = moduleProgress();
+  const el = $('#modProg');
+  if(el) el.textContent = prog.done+' / '+prog.total+' checks · '+prog.pct.toFixed(1)+'%';
+  const bar = $('#modProgBar');
+  if(bar) bar.style.width = prog.pct.toFixed(1)+'%';
+}
+
+/* ---------- delegated event handling ---------- */
+function onClick(e){
+  const t = e.target;
+  if(!t || !t.closest) return;
+
+  /* nav close on mobile */
+  const navLink = t.closest('.nav-item');
+  if(navLink){ closeSidebar(); return; }
+
+  /* mode pills */
+  const modeBtn = t.closest('#modes button');
+  if(modeBtn){
+    const rec = dayRec(UI.date);
+    rec.mode = modeBtn.dataset.mode;
+    save();
+    render(false);
+    return;
+  }
+
+  /* date navigator */
+  const nav = t.closest('[data-date-nav]');
+  if(nav){
+    const step = t.closest('button[data-step]');
+    if(step){
+      const d = addDays(UI.date, parseInt(step.dataset.step, 10));
+      go(UI.page, d);
+      return;
+    }
+  }
+
+  /* week step */
+  const wk = t.closest('button[data-week-step]');
+  if(wk){
+    go('weekly', addDays(weekStart(UI.date), parseInt(wk.dataset.weekStep, 10)*7));
+    return;
+  }
+
+  /* tabs */
+  const tab = t.closest('[data-tab]');
+  if(tab){ UI.tab = tab.dataset.tab; render(false); return; }
+
+  /* expand a timeline block */
+  const exp = t.closest('[data-expand]');
+  if(exp){
+    const name = exp.dataset.expand;
+    UI.expanded = (UI.expanded === name) ? null : name;
+    render(false);
+    const btn = $('[data-expand="'+CSS.escape(name)+'"]');
+    if(btn) btn.focus();
+    return;
+  }
+
+  /* HIT / MISS — canonical rows (milestone card) and individual timeline blocks */
+  const hm = t.closest('[data-hitmiss],[data-hmt]');
+  if(hm){
+    const v = hm.dataset.v;
+    let rec;
+    if(hm.dataset.hitmiss) rec = msRec(UI.date, hm.dataset.hitmiss);
+    else rec = msTargetRec(UI.date, hm.dataset.hmt, hm.dataset.hmkind || 'block');
+    rec.status = (rec.status === v || v === 'none') ? '' : v;
+    save();
+    refreshMsChips();
+    refreshMilestoneStats();
+    return;
+  }
+
+  /* error entries */
+  if(t.closest('[data-open-error]')){ UI.editingError = null; openModal(); return; }
+  if(t.closest('[data-save-error]')){ saveErrorEntry(); return; }
+  if(t.closest('[data-close-modal]')){ closeModal(); return; }
+  const editErr = t.closest('[data-edit-error]');
+  if(editErr){ UI.editingError = editErr.dataset.editError; openModal(); return; }
+  const delErr = t.closest('[data-del-error]');
+  if(delErr){
+    if(confirm('Delete this error entry? This cannot be undone.')){
+      S.errors = S.errors.filter(x => x.id !== delErr.dataset.delError);
+      save(true); render(false); toast('Entry deleted');
+    }
+    return;
+  }
+
+  /* settings */
+  if(t.closest('[data-export]')){ exportJSON(); toast('Exported ' + todayISO()); return; }
+  if(t.closest('[data-import]')){ const el = $('#importFile'); if(el) el.click(); return; }
+  if(t.closest('[data-reset]')){ resetAll(); return; }
+  const delKey = t.closest('[data-del-key]');
+  if(delKey){
+    S.settings.keyDates = (S.settings.keyDates||[]).filter(k => k.id !== delKey.dataset.delKey);
+    save(true); render(false); toast('Key date removed');
+    return;
+  }
+  if(t.closest('[data-add-key]')){
+    const date = $('#kdDate').value;
+    const label = ($('#kdLabel').value||'').trim();
+    const type = $('#kdType').value;
+    if(!date){ alert('Pick a date first.'); return; }
+    if(!label){ alert('Give the event a name.'); return; }
+    S.settings.keyDates = S.settings.keyDates || [];
+    S.settings.keyDates.push({ id: uid(), date, label, type });
+    save(true); render(false); toast('Key date added');
+    return;
+  }
+}
+
+function onInput(e){
+  const t = e.target;
+  if(!t || !t.closest) return;
+
+  /* milestone text / evidence */
+  if(t.dataset && t.dataset.ms){
+    const key = t.dataset.ms, field = t.dataset.field;
+    const rec = msRec(UI.date, key);
+    rec[field] = t.value;
+    save();
+    return;
+  }
+  /* milestone text / evidence on an individual timeline block */
+  if(t.dataset && t.dataset.mst){
+    const rec = msTargetRec(UI.date, t.dataset.mst, t.dataset.mstk || 'block');
+    rec[t.dataset.field] = t.value;
+    save();
+    return;
+  }
+  /* milestone footer */
+  if(t.dataset && t.dataset.msfooter){
+    const rec = dayRec(UI.date);
+    if(!rec.msFooter) rec.msFooter = { unfinished:'', hardest:'' };
+    rec.msFooter[t.dataset.msfooter] = t.value;
+    save();
+    return;
+  }
+  /* FOM-4 tally (today widget) */
+  if(t.dataset && t.dataset.fom4){
+    const rec = dayRec(UI.date);
+    const v = Math.max(0, parseInt(t.value, 10) || 0);
+    rec.fom4[t.dataset.fom4] = v;
+    save();
+    refreshFom4Balance();
+    return;
+  }
+  /* FOM-4 tally (error log, per date) */
+  if(t.dataset && t.dataset.tally){
+    const rec = dayRec(t.dataset.tally);
+    const v = Math.max(0, parseInt(t.value, 10) || 0);
+    rec.fom4[t.dataset.field] = v;
+    save();
+    const chartHost = $('#tallyChart');
+    if(chartHost){
+      const dates = [];
+      for(let i=13;i>=0;i--) dates.push(addDays(todayISO(), -i));
+      const rows = dates.map(d => {
+        const r = dayRec(d); const f = r.fom4 || {};
+        return { label:fmtDate(d,{day:'numeric',month:'short'}), x:String(parseISO(d).getDate()), a:f.flagged||0, b:f.corrected||0, color:'#f5b544', dim:(f.flagged||0)===0 };
+      });
+      chartHost.innerHTML = svgBarChart(rows, { aria:'FOM-4 flags per day', height:200 });
+    }
+    return;
+  }
+  /* sleep entry */
+  if(t.dataset && t.dataset.sleep){
+    const rec = dayRec(UI.date);
+    rec.sleep[t.dataset.sleep] = t.value;
+    rec.sleep.hours = sleepDuration(rec.sleep.lightsOut, rec.sleep.wake);
+    save();
+    refreshSleepStats();
+    return;
+  }
+  /* improvement */
+  if(t.hasAttribute && t.hasAttribute('data-improve')){
+    dayRec(UI.date).improvement = t.value;
+    save();
+    return;
+  }
+  /* energy scores */
+  if(t.name && t.name.indexOf('en-') === 0){
+    const parts = t.name.split('-');
+    const key = parts[1];
+    const rec = dayRec(UI.date);
+    rec.energy[key] = parseInt(t.value, 10);
+    save();
+    refreshEnergyViews();
+    return;
+  }
+  /* sleepiness */
+  if(t.name && t.name.indexOf('sl-') === 0){
+    const parts = t.name.split('-');
+    const slot = parts[1] === '1105' ? '11:05' : parts[1] === '1525' ? '15:25' : '16:45';
+    const rec = dayRec(UI.date);
+    rec.sleepiness[slot] = parseInt(t.value, 10);
+    save();
+    return;
+  }
+  /* nap / workout switches */
+  if(t.id && t.id.indexOf('nap-') === 0){
+    dayRec(UI.date).nap = t.checked; save(); return;
+  }
+  if(t.id && t.id.indexOf('workout-') === 0){
+    dayRec(UI.date).workout = t.checked; save(); return;
+  }
+  if(t.dataset && t.dataset.workouttype !== undefined){
+    dayRec(UI.date).workoutType = t.value; save(); return;
+  }
+  /* module checks */
+  if(t.dataset && t.dataset.mod){
+    const id = t.dataset.mod, ck = t.dataset.check;
+    if(!S.modules[id]) S.modules[id] = {};
+    S.modules[id][ck] = t.checked;
+    save();
+    refreshModuleProgress();
+    const modEl = t.closest('.mod');
+    if(modEl){
+      const rec = S.modules[id];
+      const done = MOD_CHECKS.filter(c => rec[c.k]).length;
+      modEl.classList.toggle('done', done === MOD_CHECKS.length);
+    }
+    return;
+  }
+  /* weekly review numbers */
+  if(t.dataset && t.dataset.wr){
+    const key = weekStart(UI.date);
+    if(!S.weekly[key]) S.weekly[key] = { subjects:{} };
+    if(!S.weekly[key].subjects) S.weekly[key].subjects = {};
+    if(!S.weekly[key].subjects[t.dataset.wr]) S.weekly[key].subjects[t.dataset.wr] = { hit:'', total:'' };
+    S.weekly[key].subjects[t.dataset.wr][t.dataset.field] = t.value;
+    save();
+    return;
+  }
+  /* weekly review text */
+  if(t.dataset && t.dataset.wrtext){
+    const key = weekStart(UI.date);
+    if(!S.weekly[key]) S.weekly[key] = { subjects:{} };
+    S.weekly[key][t.dataset.wrtext] = t.value;
+    save();
+    return;
+  }
+  /* weekly review select */
+  if(t.dataset && t.dataset.wrselect){
+    const key = weekStart(UI.date);
+    if(!S.weekly[key]) S.weekly[key] = { subjects:{} };
+    S.weekly[key][t.dataset.wrselect] = t.value;
+    save();
+    return;
+  }
+  /* settings */
+  if(t.dataset && t.dataset.settings){
+    S.settings[t.dataset.settings] = t.value;
+    save();
+    renderSidebarFoot();
+    return;
+  }
+}
+
+function onChange(e){
+  const t = e.target;
+  if(!t || !t.closest) return;
+  /* deload + helper toggles live outside the generic data-* scheme */
+  if(t.id && t.id.indexOf('wr-deload-') === 0){
+    const key = weekStart(UI.date);
+    if(!S.weekly[key]) S.weekly[key] = { subjects:{} };
+    S.weekly[key].deload = t.checked; save(); return;
+  }
+  if(t.id && t.id.indexOf('wr-helper-') === 0){
+    const key = weekStart(UI.date);
+    if(!S.weekly[key]) S.weekly[key] = { subjects:{} };
+    S.weekly[key].helperSync = t.checked; save(); return;
+  }
+  /* block done toggles */
+  if(t.dataset && t.dataset.blockdone){
+    const rec = dayRec(UI.date);
+    rec.blocks[t.dataset.blockdone] = t.checked;
+    save();
+    render(false);
+    return;
+  }
+  /* date inputs inside a date-nav */
+  if(t.type === 'date' && t.closest('[data-date-nav]')){
+    if(t.value) go(UI.page, t.value);
+    return;
+  }
+  if(t.type === 'file' && t.id === 'importFile'){
+    if(t.files && t.files[0]) importJSON(t.files[0]);
+    t.value = '';
+    return;
+  }
+  if(t.type === 'radio' || t.type === 'checkbox' || t.type === 'date' || t.type === 'time' || t.type === 'select-one'){
+    onInput(e);
+  }
+}
+
+/* ---------- error entry save ---------- */
+function saveErrorEntry(){
+  const g = id => { const el = $('#'+id); return el ? el.value.trim() : ''; };
+  const entry = {
+    id: UI.editingError || uid(),
+    date: g('eDate'),
+    subject: g('eSubj'),
+    ref: g('eRef'),
+    mark: g('eMark'),
+    code: g('eCode'),
+    cause: g('eCause'),
+    fix: g('eFix'),
+    resolveDate: g('eResolve'),
+    result: g('eResult')
+  };
+  if(!entry.date){ alert('Give the entry a date.'); return; }
+  if(UI.editingError){
+    const i = S.errors.findIndex(x => x.id === UI.editingError);
+    if(i >= 0) S.errors[i] = entry;
+  } else {
+    S.errors.push(entry);
+  }
+  save(true);
+  closeModal();
+  render(false);
+  toast(UI.editingError ? 'Entry updated' : 'Entry added');
+}
+
+/* ---------- sleep duration maths ---------- */
+function sleepDuration(lo, wk){
+  if(!lo || !wk) return null;
+  let a = minutesOf(lo), b = minutesOf(wk);
+  if(b <= a) b += 1440;
+  const mins = b - a;
+  if(mins <= 0 || mins > 1200) return null;
+  return Math.round(mins/60*100)/100;
+}
+
+/* ---------- sidebar ---------- */
+function openSidebar(){ $('#sidebar').classList.add('open'); $('#scrim').classList.add('show'); }
+function closeSidebar(){ $('#sidebar').classList.remove('open'); $('#scrim').classList.remove('show'); }
+
+/* ---------- clock ---------- */
+function updateClock(){
+  const now = new Date();
+  const el = $('#clock');
+  if(el) el.innerHTML = fmtClock(now) + '<small>' + WD_SHORT[now.getDay()].toUpperCase() + ' · IST</small>';
+  const sv = $('#streakVal');
+  if(sv) sv.textContent = streakCount();
+  refreshNow();
+}
+
+/* ============================================================
+   Boot
+   ============================================================ */
+function boot(){
+  load();
+  UI.date = todayISO();
+
+  /* nav */
+  document.addEventListener('click', onClick);
+  document.addEventListener('input', onInput);
+  document.addEventListener('change', onChange);
+
+  /* modal backdrop + escape */
+  document.addEventListener('mousedown', e => { if(e.target.matches('[data-modal-back]')) closeModal(); });
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape' && $('.modal-back')) { closeModal(); return; }
+    if(e.altKey && e.key === 'ArrowLeft'){ e.preventDefault(); go(UI.page, addDays(UI.date, -1)); }
+    if(e.altKey && e.key === 'ArrowRight'){ e.preventDefault(); go(UI.page, addDays(UI.date, 1)); }
+  });
+
+  /* never lose the last keystroke */
+  const flush = () => { if(saveTimer){ clearTimeout(saveTimer); saveTimer = null; save(true); } };
+  window.addEventListener('pagehide', flush);
+  window.addEventListener('beforeunload', flush);
+  document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'hidden') flush(); });
+
+  /* sidebar */
+  $('#hamb').addEventListener('click', () => {
+    const sb = $('#sidebar');
+    if(sb.classList.contains('open')) closeSidebar(); else openSidebar();
+  });
+  $('#scrim').addEventListener('click', closeSidebar);
+
+  /* router */
+  window.addEventListener('hashchange', () => {
+    const { page, date } = parseHash();
+    UI.page = page;
+    if(date) UI.date = date;
+    UI.expanded = null;
+    render(true);
+  });
+
+  /* first paint */
+  if(!location.hash) location.hash = '#/today/' + todayISO();
+  else navigate();
+
+  /* clock tick */
+  setInterval(updateClock, 1000);
+  setInterval(() => { if(UI.page === 'today' || UI.page === 'energy') updateClock(); }, 30000);
+}
+
+document.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>
