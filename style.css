@@ -800,11 +800,22 @@ select.input { appearance: none; background-image: linear-gradient(45deg, transp
 .cat-Breakfast, .cat-Lunch, .cat-Dinner, .cat-Fuel { border-left-color: var(--cat-meal); }
 .cat-Nap, .cat-"Night Sleep" { border-left-color: var(--cat-sleep); }
 .cat-NightSleep{ border-left-color: var(--cat-sleep); }
+.cat-Fuel      { border-left-color: var(--cat-meal); }
 .cat-Workout   { border-left-color: var(--cat-workout); }
 .cat-Break     { border-left-color: var(--cat-break); }
 .cat-Free, .cat-FreeZone { border-left-color: var(--cat-free); }
 .cat-Planning  { border-left-color: var(--cat-planning); }
 .cat-Recovery  { border-left-color: var(--cat-recovery); }
+
+/* Category rail variants used on up-next / glance rows (same palette) */
+.upnext-item[class*="cat-"], .glance-item[class*="cat-"] { border-left-width: 3px; }
+
+/* Sidebar mini zone dot (12px) — lit state derived from data-zone attr */
+.status-line .zone-dot { width: 12px; height: 12px; flex: none; }
+.zone-dot[data-zone="full"]      { background: var(--green);  border-color: #6fd19a; box-shadow: 0 0 8px rgba(63,169,106,0.6); }
+.zone-dot[data-zone="modified"]  { background: var(--cyan);   border-color: #7fd4e2; box-shadow: 0 0 8px rgba(70,181,200,0.6); }
+.zone-dot[data-zone="recovery"]  { background: var(--orange); border-color: #f0ac6d; box-shadow: 0 0 8px rgba(224,138,60,0.6); }
+.zone-dot[data-zone="essential"] { background: var(--red);    border-color: #ef8b83; box-shadow: 0 0 8px rgba(214,86,78,0.65); }
 
 /* -----------------------------------------------------------------------------
    13. DAILY TRACKER — block cards
